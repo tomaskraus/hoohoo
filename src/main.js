@@ -12,12 +12,10 @@ const log = appLog.extend("main");
 
 const getExtractDirName = (fileName) => fileName;
 
-const extract = async (mdFileName) => {
+const extract = async (mdFileName, options) => {
   const extractDirName = getExtractDirName(mdFileName);
   log(`extract from md file: [${mdFileName}] to dir: [${extractDirName}]`);
-  return await extractMdToDir(mdFileName, extractDirName, {
-    mdCodeStyleStr: "js",
-  })[0];
+  return await extractMdToDir(mdFileName, extractDirName, options)[0];
 };
 
 module.exports = {

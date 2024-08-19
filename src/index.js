@@ -41,16 +41,21 @@ const keepTempFileOption = createOption(
   "does not delete temporary files after use"
 );
 
-// const getBusinessLogicOptions = (options) => ({
-//   assertionMark: options.mark,
-//   keepTempFile: options.keepTempFile,
-// });
+const codeBlocLanguageExtensionOption = createOption(
+  "-l, --languageExtension <languageExtension>",
+  "sets a language extension to recognize in a markdown code block"
+).default("js");
+
+const getBusinessLogicOptions = (options) => ({
+  languageExtension: options.languageExtension,
+});
 
 program
   .command("extract")
   .alias("e")
   .argument("[<mdFile>]", "a markdown file with code examples", "README.md")
   .description("extracts js examples from the markdown file")
+  .addOption(codeBlocLanguageExtensionOption)
   .addHelpText(
     "after",
     `example: 
@@ -60,10 +65,9 @@ program
     `
   )
   .action(async (mdFile, options) => {
-    // const businessLogic = businessLogicProvider(
-    //   getBusinessLogicOptions(options)
-    // );
-    process.exitCode = await safeRunner(async () => await extract(mdFile));
+    process.exitCode = await safeRunner(
+      async () => await extract(mdFile, getBusinessLogicOptions(options))
+    );
   });
 
 program.parse();

@@ -5,13 +5,17 @@
 const { appLog } = require("./logger.js");
 const log = appLog.extend("engine");
 
+const DEFAULT_OPTIONS = {
+  languageExtension: "js",
+};
+
 const extractMdToDir = async (
   mdFileName,
   destinationDirName,
-  { mdCodeStyleStr }
+  options = DEFAULT_OPTIONS
 ) => {
   log(
-    `extracting [${mdCodeStyleStr}] sections of [${mdFileName}] file to [${destinationDirName}] directory`
+    `extracting [${options.languageExtension}] sections of [${mdFileName}] file to [${destinationDirName}] directory`
   );
 
   beforeExtract(destinationDirName);
@@ -26,7 +30,7 @@ const extractMdToDir = async (
 
 const beforeExtract = (extractDirName) => {
   log(`beforeExtract: dirName: [${extractDirName}]`);
-  throw new Error("Not implemented!");
+  // throw new Error("Not implemented!");
 };
 
 module.exports = {
