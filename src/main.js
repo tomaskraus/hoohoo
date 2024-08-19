@@ -31,18 +31,20 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
   const codeBlocks = engine.getCodeBlockList(lines, options.languageExtension);
 
   Promise.all(
-    codeBlocks.map((block, index) => {
-      const fname = Path.join(
-        extractedDirName,
-        getExtractedFileName(
-          mdFileName,
-          index,
-          getFileExtensionFromLanguage(options.languageExtension)
-        )
-      );
-      log(`  creating file [${fname}]`);
-      fs.writeFile(fname, block.join("\n"));
-    })
+    codeBlocks
+      .map((block) => [`//index:${block.startIndex}`, ...block.data])   // adds index header info
+      .map((blockData, index) => {
+        const fname = Path.join(
+          extractedDirName,
+          getExtractedFileName(
+            mdFileName,
+            index,
+            getFileExtensionFromLanguage(options.languageExtension)
+          )
+        );
+        log(`  creating file [${fname}]`);
+        fs.writeFile(fname, blockData.join("\n"));
+      })
   ).then(() => {
     const message = `extracted [${codeBlocks.length}] blocks to files under the [${extractedDirName}] directory`;
     log(message);

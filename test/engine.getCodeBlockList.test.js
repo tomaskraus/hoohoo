@@ -9,7 +9,7 @@ describe("engine.getCodeBlockList", () => {
     expect(getCodeBlockList(`hello`.split("\n"), "js")).toEqual([]);
   });
 
-  test("returns empty list from input without code blocks", () => {
+  test("returns empty list from multi-line input without code blocks", () => {
     expect(
       getCodeBlockList(
         `hello, 
@@ -20,17 +20,18 @@ describe("engine.getCodeBlockList", () => {
   });
 
   test("returns the content of one item from input with one code block", () => {
-    expect(
-      getCodeBlockList(
-        `hello,
+    const result = getCodeBlockList(
+      `hello,
 \`\`\`js
 code 
  block
 \`\`\` 
 world`.split("\n"),
-        "js"
-      )
-    ).toEqual([["code ", " block"]]);
+      "js"
+    );
+    expect(result.length).toEqual(1);
+    expect(result[0].startIndex).toEqual(2);
+    expect(result[0].data).toEqual(["code ", " block"]);
   });
 
   test("omits empty code blocks", () => {
@@ -48,9 +49,8 @@ world
   });
 
   test("omits code blocks with different languageType", () => {
-    expect(
-      getCodeBlockList(
-        `hello,
+    const results = getCodeBlockList(
+      `hello,
 \`\`\`t
 b1
 \`\`\` 
@@ -58,8 +58,11 @@ world
 \`\`\`js
 b2
 \`\`\``.split("\n"),
-        "js"
-      )
-    ).toEqual([["b2"]]);
+      "js"
+    );
+
+    expect(results.length).toEqual(1);
+    expect(results[0].startIndex).toEqual(6);
+    expect(results[0].data).toEqual(["b2"]);
   });
 });
