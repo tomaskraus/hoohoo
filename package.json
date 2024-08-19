@@ -24,6 +24,8 @@
     "markdown",
     "test",
     "doctest",
+    "examples",
+    "testing",
     "mdjs",
     "assertion",
     "CI",
