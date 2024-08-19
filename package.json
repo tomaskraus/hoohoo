@@ -1,0 +1,58 @@
+{
+  "name": "md-js-test",
+  "version": "0.1.0",
+  "description": "Checks javascript examples in your Markdown document. It also can test output of examples against assertions written in their comments. ",
+  "main": "src/index.js",
+  "files": [
+    "src"
+  ],
+
+  "scripts": {
+    "format:check": "npx prettier --check .",
+    "format:write": "npx prettier --write .",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "test": "jest",
+    "lint": "npx eslint"
+  },
+
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/tomaskraus/md-js-test.git"
+  },
+  "keywords": [
+    "markdown",
+    "test",
+    "doctest",
+    "mdjs",
+    "assertion",
+    "CI",
+    "documentation",
+    "readme.md",
+    "clogtest",
+    "SSP",
+    "simple-string-pattern"
+  ],
+  "author": "Tomas Kraus <tomas.kraus.dev@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/tomaskraus/md-js-test/issues"
+  },
+  "homepage": "https://github.com/tomaskraus/md-js-test#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.11",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.2.5"
+  },
+  "dependencies": {
+    "commander": "^12.0.0"
+  }
+
+}
