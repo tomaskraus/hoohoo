@@ -15,11 +15,15 @@ const log = appLog.extend("main");
 
 // -------------------------------------------
 
+const print = console.error;
+
+// -------------------------------------------
+
 const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
   const extractedDirName = getExtractedDirName(mdFileName);
-  log(
-    `extracting [${options.languageExtension}] code block of [${mdFileName}] file to [${extractedDirName}] directory ...`
-  );
+  const message = `extracting [${options.languageExtension}] code blocks of [${mdFileName}] file to [${extractedDirName}] directory ...`;
+  log(message);
+  print(message);
 
   await resetDir(extractedDirName);
 
@@ -40,9 +44,9 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
       fs.writeFile(fname, block.join("\n"));
     })
   ).then(() => {
-    log(
-      `extracted [${codeBlocks.length}] blocks to files under the [${extractedDirName}] directory`
-    );
+    const message = `extracted [${codeBlocks.length}] blocks to files under the [${extractedDirName}] directory`;
+    log(message);
+    print(message);
     return codeBlocks.length;
   });
 };
@@ -53,7 +57,7 @@ const getFileExtensionFromLanguage = (languageExtension) => languageExtension;
 
 const getExtractedDirName = (fileName) => {
   const fname = Path.parse(fileName).base;
-  return Path.resolve(Path.dirname("."), `.${APP_NAME}.${fname}.extracted.dir`);
+  return Path.join(".", `.${APP_NAME}.${fname}.extracted.dir`);
 };
 
 const getExtractedFileName = (fileName, index, extensionWithoutLeadingDot) =>
