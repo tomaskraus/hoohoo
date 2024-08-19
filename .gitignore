@@ -135,3 +135,5 @@ dist
 
 # clogtest temp files
 .clogtest.*
+# md-js-test extracted files
+.md-js-test*/
