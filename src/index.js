@@ -1,5 +1,5 @@
 /**
- * md-js-test CLI.
+ * hoohoo CLI.
  */
 
 // const Path = require("path");
@@ -24,7 +24,7 @@ const safeRunner = async (asyncFn) => {
 // ---------------------------------------------------------------
 
 const program = new Command();
-program.name("md-js-test").showHelpAfterError();
+program.name("hoohoo").showHelpAfterError();
 
 const jsDirOption = createOption(
   "-j, --jsDir <dirName>",
@@ -62,8 +62,8 @@ program
   .addHelpText(
     "after",
     `example: 
-    md-js-test e
-    md-js-test extract views/detail.md
+    hoohoo e
+    hoohoo extract views/detail.md
 
     `
   )
@@ -94,9 +94,9 @@ program
   .addHelpText(
     "after",
     `example: 
-    md-js-test c
-    md-js-test check views/detail.md
-    md-js-test check --no-extract views/detail.md
+    hoohoo c
+    hoohoo check views/detail.md
+    hoohoo check --no-extract views/detail.md
     `
   )
   .action(async (mdFile, options) => {

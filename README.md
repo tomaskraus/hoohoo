@@ -1,5 +1,16 @@
-## md-js-test
+## hoohoo
 
-Checks javascript examples in your Markdown document.
+```
+Hoo Hoo |\__/|
+       <(o)(o)
+ +------| . .|
+ | js   |__.\|
+ | //=>  j  j
+ +-------+    
+```
 
-It can also **test** the output of examples against assertions written in examples' comments.
+**hoohoo** is a command-line tool for _Javascript/Typescript_ examples in your _markdown_ document.  
+hoohoo can: 
+- extract examples to the directory
+- check examples in your Markdown document if they are runnable
+- test the output of examples against assertions written in examples' comments

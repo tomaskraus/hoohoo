@@ -1,6 +1,6 @@
 const Debug = require("debug");
 
-const appLog = Debug("md-js-test");
+const appLog = Debug("hoohoo");
 
 module.exports = {
   appLog,

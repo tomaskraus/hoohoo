@@ -3,7 +3,7 @@
  * Uses the engine and reports to the console stdout, stderr.
  */
 
-const APP_NAME = "md-js-test";
+const APP_NAME = "hoohoo";
 
 const fs = require("fs/promises");
 const Path = require("path");
