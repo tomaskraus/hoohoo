@@ -69,14 +69,21 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
 
   return Promise.all(
     files.reduce((acc, name) => {
-      print(`check ${name}`);
+      // print(`check ${name}`);
       return [...acc, engine.checkOneFile(name)];
     }, [])
   ).then((results) => {
     log("check: results:", results);
-    const failedCount = results.filter((res) => !res.pass).length;
+    const fails = results.filter((res) => !res.pass);
+    const failedCount = fails.length;
     log(`failedCount: ${failedCount}`);
-    return failedCount > 0 ? 1 : 0;
+    if (failedCount > 0) {
+      for (f of fails) {
+        print(f);
+      }
+      return 1;
+    }
+    return 0;
   });
 };
 
