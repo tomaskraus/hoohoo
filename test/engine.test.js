@@ -70,6 +70,88 @@ b2
   });
 });
 
+describe("engine.getCodeBlockList - skip marks", () => {
+  test("skip code blocks with the same languageType if there is a skip-comment before them", () => {
+    const results = getCodeBlockList(
+      `hello,
+\`\`\`js
+b0
+\`\`\` 
+    <!-- skip --> 
+
+\`\`\`js
+b1
+\`\`\` 
+world
+\`\`\`js
+b2
+\`\`\``.split("\n"),
+      "js"
+    );
+
+    expect(results.length).toEqual(2);
+    expect(results[0].startIndex).toEqual(2);
+    expect(results[0].data).toEqual(["b0"]);
+    expect(results[1].startIndex).toEqual(11);
+    expect(results[1].data).toEqual(["b2"]);
+  });
+
+  test("skip code blocks with the same languageType if there is an alternative (markdown-doctest) skip-comment before them", () => {
+    const results = getCodeBlockList(
+      `hello,
+\`\`\`js
+b0
+\`\`\` 
+    <!-- skip --> 
+
+\`\`\`js
+b1
+\`\`\` 
+<!-- skip-example --> 
+world
+\`\`\`js
+b2
+\`\`\``.split("\n"),
+      "js"
+    );
+
+    expect(results.length).toEqual(1);
+    expect(results[0].startIndex).toEqual(2);
+    expect(results[0].data).toEqual(["b0"]);
+  });
+
+  test("return empty list if all the code is marked by skip-comment", () => {
+    const results = getCodeBlockList(
+      `hello,
+    <!-- skip --> 
+    
+\`\`\`js
+b1
+\`\`\` 
+<!--  skip   -->
+\`\`\`js
+b2
+\`\`\``.split("\n"),
+      "js"
+    );
+
+    expect(results.length).toEqual(0);
+  });
+
+  test("skip-comment(s) without code blocks do nothing", () => {
+    const results = getCodeBlockList(
+      `hello,
+    <!-- skip --> 
+
+    <!-- skip --> 
+    `.split("\n"),
+      "js"
+    );
+
+    expect(results.length).toEqual(0);
+  });
+});
+
 // ---------------------------
 
 describe("engine.getStartIndexFromFileName", () => {

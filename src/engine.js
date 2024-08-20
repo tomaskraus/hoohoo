@@ -11,35 +11,61 @@ const log = appLog.extend("engine");
 // -------------------------------------------------------
 
 const getCodeBlockList = (lines, languageExtension) => {
-  const MD_BLOCK = "```";
+  const MARKDOVN_BLOCK = "```";
   const S_NO_BLOCK = 0;
   const S_START_BLOCK = 1;
   const S_BLOCK = 2;
 
+  const COMMENT_REGEX = /^\s*<!--\s+([a-z-]+)\s+-->\s*$/;
+  const SKIP_MARK_1 = "skip";
+  // markdown-doctest skip comment mark
+  // see https://github.com/Widdershin/markdown-doctest
+  const SKIP_MARK_2 = "skip-example"; //
+
   const res = lines.reduce(
-    ([blocks, state, blockAcc, startIndex], line, index) => {
+    ([blocks, state, blockAcc, startIndex, isSkip], line, index) => {
       if (state === S_NO_BLOCK) {
-        if (line.trim() === MD_BLOCK + languageExtension) {
+        const commentContentCandidate = line.match(COMMENT_REGEX);
+        const commentContent = commentContentCandidate
+          ? commentContentCandidate[1]
+          : null;
+        if (line.trim() === MARKDOVN_BLOCK + languageExtension) {
           // start of a block
-          return [blocks, S_START_BLOCK, [], index + 1];
+          return [blocks, S_START_BLOCK, [], index + 1, isSkip];
+        } else if (
+          commentContent === SKIP_MARK_1 ||
+          commentContent === SKIP_MARK_2
+        ) {
+          // skip mark detected
+          return [blocks, state, [], 0, true];
         } else {
           // no-block continues
-          return [blocks, state, [], 0];
+          return [blocks, state, [], 0, isSkip];
         }
       } else if (state === S_START_BLOCK) {
-        if (line.trim() === MD_BLOCK) {
+        if (line.trim() === MARKDOVN_BLOCK) {
           // empty code block detected
-          return [blocks, S_NO_BLOCK, [], 0];
+          return [blocks, S_NO_BLOCK, [], 0, isSkip];
         }
         // push the first line of the code block to the accumulator
-        return [blocks, S_BLOCK, [line], startIndex];
+        return [blocks, S_BLOCK, [line], startIndex, isSkip];
       } else if (state === S_BLOCK) {
-        if (line.trim() === MD_BLOCK) {
-          // flush the accumulator, add its content to blocks
-          return [[...blocks, { startIndex, data: blockAcc }], S_NO_BLOCK, []];
+        if (line.trim() === MARKDOVN_BLOCK) {
+          if (isSkip) {
+            //skip the accumlator and continue
+            return [blocks, S_NO_BLOCK, [], 0, false];
+          }
+          // flush the accumulator, add its content to blocks, reset skip-mark
+          return [
+            [...blocks, { startIndex, data: blockAcc }],
+            S_NO_BLOCK,
+            [],
+            0,
+            false,
+          ];
         }
         // add line to the accumulator
-        return [blocks, S_BLOCK, [...blockAcc, line], startIndex];
+        return [blocks, S_BLOCK, [...blockAcc, line], startIndex, isSkip];
       } else {
         throw new Error(`unknown state: [${state}]`);
       }
