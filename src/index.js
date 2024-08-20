@@ -5,15 +5,15 @@
 // const Path = require("path");
 const { Command, createOption } = require("commander");
 
-const { extract } = require("./main");
+const { extract, check } = require("./main");
 
 // ------------------------------------------
 
 const safeRunner = async (asyncFn) => {
   const DEFAULT_RET_CODE = 1;
   try {
-    const result = await asyncFn();
-    return result;
+    const code = await asyncFn();
+    return code;
   } catch (err) {
     const err2 = new Error(err.message, { cause: err });
     console.log(err2);
@@ -48,7 +48,10 @@ const codeBlocLanguageExtensionOption = createOption(
 
 const getBusinessLogicOptions = (options) => ({
   languageExtension: options.languageExtension,
+  doExtractStep: options.extract,
 });
+
+// ----------------------
 
 program
   .command("extract")
@@ -65,9 +68,43 @@ program
     `
   )
   .action(async (mdFile, options) => {
-    process.exitCode = await safeRunner(
-      async () => await extract(mdFile, getBusinessLogicOptions(options))
+    process.exitCode = await safeRunner(() =>
+      extract(mdFile, getBusinessLogicOptions(options))
     );
   });
+
+// ----------------------
+
+const noExtractOption = createOption(
+  "--no-extract",
+  "skips the markdown-file-extraction step"
+);
+
+// ----------------------
+
+program
+  .command("check")
+  .alias("c")
+  .argument("[<mdFile>]", "a markdown file with code examples", "README.md")
+  .description(
+    "Check js examples from the markdown file: tests examples for runnability, tests each example output against examples' assertions."
+  )
+  .addOption(codeBlocLanguageExtensionOption)
+  .addOption(noExtractOption)
+  .addHelpText(
+    "after",
+    `example: 
+    md-js-test c
+    md-js-test check views/detail.md
+    md-js-test check --no-extract views/detail.md
+    `
+  )
+  .action(async (mdFile, options) => {
+    process.exitCode = await safeRunner(() =>
+      check(mdFile, getBusinessLogicOptions(options))
+    );
+  });
+
+// ----------------------
 
 program.parse();

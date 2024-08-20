@@ -1,4 +1,7 @@
-const { getCodeBlockList } = require("../src/engine");
+const {
+  getCodeBlockList,
+  getStartIndexFromFileName,
+} = require("../src/engine");
 
 describe("engine.getCodeBlockList", () => {
   test("returns empty list from empty input", () => {
@@ -64,5 +67,21 @@ b2
     expect(results.length).toEqual(1);
     expect(results[0].startIndex).toEqual(6);
     expect(results[0].data).toEqual(["b2"]);
+  });
+});
+
+// ---------------------------
+
+describe("engine.getStartIndexFromFileName", () => {
+  test("returns startIndex part if startIndex part is present in the fileName", () => {
+    expect(getStartIndexFromFileName("file_123.xy")).toEqual(123);
+    expect(getStartIndexFromFileName("./tmp/file-20_30_0.xyz")).toEqual(0);
+    expect(getStartIndexFromFileName("_1.js")).toEqual(1);
+  });
+  test("returns -1 part if startIndex part is not present in the fileName", () => {
+    expect(getStartIndexFromFileName("file_.xy")).toEqual(-1);
+    expect(getStartIndexFromFileName("file.x")).toEqual(-1);
+    expect(getStartIndexFromFileName("123")).toEqual(-1);
+    expect(getStartIndexFromFileName("")).toEqual(-1);
   });
 });

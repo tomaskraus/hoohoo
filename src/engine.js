@@ -2,12 +2,9 @@
  * API
  */
 
+const Path = require("path");
 const { appLog } = require("./logger.js");
 const log = appLog.extend("engine");
-
-const DEFAULT_OPTIONS = {
-  languageExtension: "js",
-};
 
 // -------------------------------------------------------
 
@@ -39,6 +36,7 @@ const getCodeBlockList = (lines, languageExtension) => {
           // flush the accumulator, add its content to blocks
           return [[...blocks, { startIndex, data: blockAcc }], S_NO_BLOCK, []];
         }
+        // add line to the accumulator
         return [blocks, S_BLOCK, [...blockAcc, line], startIndex];
       } else {
         throw new Error(`unknown state: [${state}]`);
@@ -51,6 +49,34 @@ const getCodeBlockList = (lines, languageExtension) => {
   return codeBlocks;
 };
 
+const checkOneFile = async (mdFileName, fileName) => {
+  log(`checkOneFile: checking file [${fileName}]:`);
+  const fileNamePart = `${mdFileName}:${getStartIndexFromFileName(fileName) + 1}`;
+  try {
+    const content = require(Path.join("..", fileName));
+    return { file: fileNamePart, pass: true };
+  } catch (err) {
+    return { file: fileNamePart, pass: false, errorMessage: err.message };
+  }
+};
+
+// ----------------------------
+
+/**
+ *
+ * @param {string} fileName
+ * @returns {number} startIndex part of fileName, or -1 if startIndex part is not found
+ */
+const getStartIndexFromFileName = (fileName) => {
+  const indexRegex = /_(\d+)\.[^.]+/;
+  const res = fileName.match(indexRegex);
+  return res ? parseInt(res[1]) : -1;
+};
+
+// ----------------------------
+
 module.exports = {
+  getStartIndexFromFileName,
   getCodeBlockList,
+  checkOneFile,
 };
