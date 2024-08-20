@@ -30,9 +30,9 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
   const lines = await loadInputFileLines(mdFileName);
   const codeBlocks = engine.getCodeBlockList(lines, options.languageExtension);
 
-  Promise.all(
+  return Promise.all(
     codeBlocks
-      .map((block) => [`//index:${block.startIndex}`, ...block.data])   // adds index header info
+      .map((block) => [`//index:${block.startIndex}`, ...block.data]) // adds index header info
       .map((blockData, index) => {
         const fname = Path.join(
           extractedDirName,
@@ -49,7 +49,7 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
     const message = `extracted [${codeBlocks.length}] blocks to files under the [${extractedDirName}] directory`;
     log(message);
     print(message);
-    return codeBlocks.length;
+    return 0;
   });
 };
 

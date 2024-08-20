@@ -65,8 +65,8 @@ program
     `
   )
   .action(async (mdFile, options) => {
-    process.exitCode = await safeRunner(
-      async () => await extract(mdFile, getBusinessLogicOptions(options))
+    process.exitCode = await safeRunner(() =>
+      extract(mdFile, getBusinessLogicOptions(options))
     );
   });
 
