@@ -57,7 +57,10 @@ const checkOneFile = async (mdFileName, fileName) => {
   const fileNamePart = `${mdFileName}:${startIndex + 1}`;
 
   const context = {
-    require,
+    require: (fileName) =>
+      require(
+        fileName.endsWith(".js") ? Path.join(process.cwd(), fileName) : fileName
+      ),
     console,
   };
   vm.createContext(context);

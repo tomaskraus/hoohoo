@@ -26,6 +26,7 @@ Another example:
 
 ```js
 const deb = require("debug")
+const engine = require("./src/engine.js")
 console.log("hu!";
 const log = deb("abc")
 ```
