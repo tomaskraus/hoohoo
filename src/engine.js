@@ -53,7 +53,7 @@ const checkOneFile = async (mdFileName, fileName) => {
   log(`checkOneFile: checking file [${fileName}]:`);
   const fileNamePart = `${mdFileName}:${getStartIndexFromFileName(fileName) + 1}`;
   try {
-    const content = require(Path.join("..", fileName));
+    const content = require(Path.join(process.cwd(), fileName));
     return { file: fileNamePart, pass: true };
   } catch (err) {
     return { file: fileNamePart, pass: false, errorMessage: err.message };
