@@ -21,6 +21,7 @@ const print = console.error;
 
 const DEFAULT_OPTIONS = {
   languageExtension: "js",
+  doExtractStep: true,
 };
 
 const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
@@ -61,6 +62,12 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
   const message = `checking [${options.languageExtension}] files of [${mdFileName}] file in the [${extractedDirName}] directory:`;
   log(message);
   print(message);
+
+  if (options.doExtractStep) {
+    await extract(mdFileName, options);
+  } else {
+    log("- Skipping the extraction step.");
+  }
 
   const files = (await fs.readdir(extractedDirName))
     .filter((name) =>

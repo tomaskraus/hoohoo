@@ -48,7 +48,10 @@ const codeBlocLanguageExtensionOption = createOption(
 
 const getBusinessLogicOptions = (options) => ({
   languageExtension: options.languageExtension,
+  doExtractStep: options.extract,
 });
+
+// ----------------------
 
 program
   .command("extract")
@@ -70,6 +73,15 @@ program
     );
   });
 
+// ----------------------
+
+const noExtractOption = createOption(
+  "--no-extract",
+  "skips the markdown-file-extraction step"
+);
+
+// ----------------------
+
 program
   .command("check")
   .alias("c")
@@ -78,12 +90,13 @@ program
     "Check js examples from the markdown file: tests examples for runnability, tests each example output against examples' assertions."
   )
   .addOption(codeBlocLanguageExtensionOption)
+  .addOption(noExtractOption)
   .addHelpText(
     "after",
     `example: 
     md-js-test c
     md-js-test check views/detail.md
-
+    md-js-test check --no-extract views/detail.md
     `
   )
   .action(async (mdFile, options) => {
@@ -91,5 +104,7 @@ program
       check(mdFile, getBusinessLogicOptions(options))
     );
   });
+
+// ----------------------
 
 program.parse();
