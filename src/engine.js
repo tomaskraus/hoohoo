@@ -57,6 +57,10 @@ const checkOneFile = async (mdFileName, fileName) => {
   const fileNamePart = `${mdFileName}:${startIndex + 1}`;
 
   const context = {
+    /*
+      change the "require" behavior in files when they are run!!!
+      when required, local files are always searched relative to CWD (current working dir), instead of the directory running file is in
+     */
     require: (fileName) =>
       require(
         fileName.endsWith(".js") ? Path.join(process.cwd(), fileName) : fileName
