@@ -2,6 +2,8 @@
  * API
  */
 
+const vm = require("node:vm");
+const fs = require("fs/promises");
 const Path = require("path");
 const { appLog } = require("./logger.js");
 const log = appLog.extend("engine");
@@ -51,12 +53,27 @@ const getCodeBlockList = (lines, languageExtension) => {
 
 const checkOneFile = async (mdFileName, fileName) => {
   log(`checkOneFile: checking file [${fileName}]:`);
-  const fileNamePart = `${mdFileName}:${getStartIndexFromFileName(fileName) + 1}`;
+  const startIndex = getStartIndexFromFileName(fileName);
+  const fileNamePart = `${mdFileName}:${startIndex + 1}`;
+
+  const context = {
+    require,
+    console,
+  };
+  vm.createContext(context);
+  const codeToRun = await fs.readFile(fileName, { encoding: "utf-8" });
   try {
-    const content = require(Path.join(process.cwd(), fileName));
+    vm.runInContext(codeToRun, context, {
+      filename: mdFileName,
+      lineOffset: startIndex,
+    });
     return { file: fileNamePart, pass: true };
   } catch (err) {
-    return { file: fileNamePart, pass: false, errorMessage: err.message };
+    return {
+      file: err.stack.split("\n")[0],
+      pass: false,
+      errorMessage: err.message,
+    };
   }
 };
 

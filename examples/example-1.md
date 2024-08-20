@@ -25,5 +25,7 @@ const pa: TPoint = [1, 2];
 Another example:
 
 ```js
-const log = require("debug"
+const deb = require("debug")
+console.log("hu!";
+const log = deb("abc")
 ```
