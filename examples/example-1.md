@@ -15,6 +15,13 @@ This is an empty code block:
 ```js
 ```
 
+This js code block will be skipped:
+
+<!-- skip-example -->
+```js
+const Debug = require("./my-debug.js")
+```
+
 Typescript example:
 
 ```ts
