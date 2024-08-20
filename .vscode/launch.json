@@ -10,7 +10,8 @@
       "name": "Launch Program",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/src/index.js",
-      "args": ["extract examples/example-1.md"]
+      "cwd": "${workspaceFolder}",
+      "args": ["check examples/example-1.md"]
     }
   ]
 }
