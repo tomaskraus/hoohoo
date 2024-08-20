@@ -1,6 +1,6 @@
 {
   "name": "hoohoo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Checks JavaScript/TypeScript examples in your Markdown document. It can also test the output of examples against assertions written in examples' comments.",
   "main": "src/index.js",
   "bin": "bin/hoohoo.js",
