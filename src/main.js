@@ -19,7 +19,11 @@ const print = console.error;
 
 // -------------------------------------------
 
-const extract = async (mdFileName, options = engine.DEFAULT_OPTIONS) => {
+const DEFAULT_OPTIONS = {
+  languageExtension: "js",
+};
+
+const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
   const extractedDirName = getExtractedDirName(mdFileName);
   const message = `extracting [${options.languageExtension}] code blocks of [${mdFileName}] file to [${extractedDirName}] directory ...`;
   log(message);
@@ -31,20 +35,19 @@ const extract = async (mdFileName, options = engine.DEFAULT_OPTIONS) => {
   const codeBlocks = engine.getCodeBlockList(lines, options.languageExtension);
 
   return Promise.all(
-    codeBlocks
-      .map((block, index) => {
-        const fname = Path.join(
-          extractedDirName,
-          getExtractedFileName(
-            mdFileName,
-            index,
-            block.startIndex,
-            getFileExtensionFromLanguage(options.languageExtension)
-          )
-        );
-        log(`  creating file [${fname}]`);
-        fs.writeFile(fname, block.data.join("\n"));
-      })
+    codeBlocks.map((block, index) => {
+      const fname = Path.join(
+        extractedDirName,
+        getExtractedFileName(
+          mdFileName,
+          index,
+          block.startIndex,
+          getFileExtensionFromLanguage(options.languageExtension)
+        )
+      );
+      log(`  creating file [${fname}]`);
+      fs.writeFile(fname, block.data.join("\n"));
+    })
   ).then(() => {
     const message = `extracted [${codeBlocks.length}] blocks to files under the [${extractedDirName}] directory`;
     log(message);
@@ -53,7 +56,7 @@ const extract = async (mdFileName, options = engine.DEFAULT_OPTIONS) => {
   });
 };
 
-const check = async (mdFileName, options = engine.DEFAULT_OPTIONS) => {
+const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
   const extractedDirName = getExtractedDirName(mdFileName);
   const message = `checking [${options.languageExtension}] files of [${mdFileName}] file in the [${extractedDirName}] directory:`;
   log(message);

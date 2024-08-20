@@ -6,10 +6,6 @@ const Path = require("path");
 const { appLog } = require("./logger.js");
 const log = appLog.extend("engine");
 
-const DEFAULT_OPTIONS = {
-  languageExtension: "js",
-};
-
 // -------------------------------------------------------
 
 const getCodeBlockList = (lines, languageExtension) => {
@@ -80,7 +76,6 @@ const getStartIndexFromFileName = (fileName) => {
 // ----------------------------
 
 module.exports = {
-  DEFAULT_OPTIONS,
   getStartIndexFromFileName,
   getCodeBlockList,
   checkOneFile,
