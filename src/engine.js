@@ -39,6 +39,7 @@ const getCodeBlockList = (lines, languageExtension) => {
           // flush the accumulator, add its content to blocks
           return [[...blocks, { startIndex, data: blockAcc }], S_NO_BLOCK, []];
         }
+        // add line to the accumulator
         return [blocks, S_BLOCK, [...blockAcc, line], startIndex];
       } else {
         throw new Error(`unknown state: [${state}]`);
