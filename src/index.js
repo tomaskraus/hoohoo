@@ -5,7 +5,7 @@
 // const Path = require("path");
 const { Command, createOption } = require("commander");
 
-const { extract } = require("./main");
+const { extract, check } = require("./main");
 
 // ------------------------------------------
 
@@ -67,6 +67,28 @@ program
   .action(async (mdFile, options) => {
     process.exitCode = await safeRunner(() =>
       extract(mdFile, getBusinessLogicOptions(options))
+    );
+  });
+
+program
+  .command("check")
+  .alias("c")
+  .argument("[<mdFile>]", "a markdown file with code examples", "README.md")
+  .description(
+    "Check js examples from the markdown file: tests examples for runnability, tests each example output against examples' assertions."
+  )
+  .addOption(codeBlocLanguageExtensionOption)
+  .addHelpText(
+    "after",
+    `example: 
+    md-js-test c
+    md-js-test check views/detail.md
+
+    `
+  )
+  .action(async (mdFile, options) => {
+    process.exitCode = await safeRunner(() =>
+      check(mdFile, getBusinessLogicOptions(options))
     );
   });
 

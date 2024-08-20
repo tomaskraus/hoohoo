@@ -51,6 +51,17 @@ const getCodeBlockList = (lines, languageExtension) => {
   return codeBlocks;
 };
 
+const checkOneFile = async (fileName) => {
+  log(`checkOneFile: checking file [${fileName}]:`);
+  try {
+    const content = require(fileName);
+    return { pass: true };
+  } catch (err) {
+    return { pass: false, errorMessage: err.message };
+  }
+};
+
 module.exports = {
   getCodeBlockList,
+  checkOneFile,
 };

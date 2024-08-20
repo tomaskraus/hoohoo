@@ -53,6 +53,33 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
   });
 };
 
+const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
+  const extractedDirName = getExtractedDirName(mdFileName);
+  const message = `checking [${options.languageExtension}] files of [${mdFileName}] file in [${extractedDirName}] directory:`;
+  log(message);
+  print(message);
+
+  const files = (await fs.readdir(extractedDirName))
+    .filter((name) =>
+      name.endsWith(
+        "." + getFileExtensionFromLanguage(options.languageExtension)
+      )
+    )
+    .map((f) => Path.join("..", extractedDirName, f));
+
+  return Promise.all(
+    files.reduce((acc, name) => {
+      print(`check ${name}`);
+      return [...acc, engine.checkOneFile(name)];
+    }, [])
+  ).then((results) => {
+    log("check: results:", results);
+    const failedCount = results.filter((res) => !res.pass).length;
+    log(`failedCount: ${failedCount}`);
+    return failedCount > 0 ? 1 : 0;
+  });
+};
+
 // -------------------------------------------
 
 const getFileExtensionFromLanguage = (languageExtension) => languageExtension;
@@ -84,4 +111,5 @@ const loadInputFileLines = async (fileName) => {
 
 module.exports = {
   extract,
+  check,
 };
