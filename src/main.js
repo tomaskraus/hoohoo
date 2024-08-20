@@ -55,7 +55,7 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
 
 const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
   const extractedDirName = getExtractedDirName(mdFileName);
-  const message = `checking [${options.languageExtension}] files of [${mdFileName}] file in [${extractedDirName}] directory:`;
+  const message = `checking [${options.languageExtension}] files of [${mdFileName}] file in the [${extractedDirName}] directory:`;
   log(message);
   print(message);
 
