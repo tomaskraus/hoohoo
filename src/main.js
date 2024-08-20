@@ -19,7 +19,7 @@ const print = console.error;
 
 // -------------------------------------------
 
-const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
+const extract = async (mdFileName, options = engine.DEFAULT_OPTIONS) => {
   const extractedDirName = getExtractedDirName(mdFileName);
   const message = `extracting [${options.languageExtension}] code blocks of [${mdFileName}] file to [${extractedDirName}] directory ...`;
   log(message);
@@ -32,18 +32,18 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
 
   return Promise.all(
     codeBlocks
-      .map((block) => [`//index:${block.startIndex}`, ...block.data]) // adds index header info
-      .map((blockData, index) => {
+      .map((block, index) => {
         const fname = Path.join(
           extractedDirName,
           getExtractedFileName(
             mdFileName,
             index,
+            block.startIndex,
             getFileExtensionFromLanguage(options.languageExtension)
           )
         );
         log(`  creating file [${fname}]`);
-        fs.writeFile(fname, blockData.join("\n"));
+        fs.writeFile(fname, block.data.join("\n"));
       })
   ).then(() => {
     const message = `extracted [${codeBlocks.length}] blocks to files under the [${extractedDirName}] directory`;
@@ -53,7 +53,7 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
   });
 };
 
-const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
+const check = async (mdFileName, options = engine.DEFAULT_OPTIONS) => {
   const extractedDirName = getExtractedDirName(mdFileName);
   const message = `checking [${options.languageExtension}] files of [${mdFileName}] file in the [${extractedDirName}] directory:`;
   log(message);
@@ -65,12 +65,12 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
         "." + getFileExtensionFromLanguage(options.languageExtension)
       )
     )
-    .map((f) => Path.join("..", extractedDirName, f));
+    .map((f) => Path.join(extractedDirName, f));
 
   return Promise.all(
     files.reduce((acc, name) => {
       // print(`check ${name}`);
-      return [...acc, engine.checkOneFile(name)];
+      return [...acc, engine.checkOneFile(mdFileName, name)];
     }, [])
   ).then((results) => {
     log("check: results:", results);
@@ -96,8 +96,13 @@ const getExtractedDirName = (fileName) => {
   return Path.join(".", `.${APP_NAME}.${fname}.extracted.dir`);
 };
 
-const getExtractedFileName = (fileName, index, extensionWithoutLeadingDot) =>
-  `${Path.parse(fileName).name}-${(index + 1 + "").padStart(4, "0")}.${extensionWithoutLeadingDot}`;
+const getExtractedFileName = (
+  fileName,
+  index,
+  startIndex,
+  extensionWithoutLeadingDot
+) =>
+  `${Path.parse(fileName).name}-${(index + 1 + "").padStart(4, "0")}_${startIndex === -1 ? "" : startIndex}.${extensionWithoutLeadingDot}`;
 
 const resetDir = async (extractDirName) => {
   log(`resetDir:  [${extractDirName}]`);

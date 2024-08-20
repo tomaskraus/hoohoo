@@ -2,6 +2,7 @@
  * API
  */
 
+const Path = require("path");
 const { appLog } = require("./logger.js");
 const log = appLog.extend("engine");
 
@@ -52,17 +53,35 @@ const getCodeBlockList = (lines, languageExtension) => {
   return codeBlocks;
 };
 
-const checkOneFile = async (fileName) => {
+const checkOneFile = async (mdFileName, fileName) => {
   log(`checkOneFile: checking file [${fileName}]:`);
+  const fileNamePart = `${mdFileName}:${getStartIndexFromFileName(fileName) + 1}`;
   try {
-    const content = require(fileName);
-    return { pass: true };
+    const content = require(Path.join("..", fileName));
+    return { file: fileNamePart, pass: true };
   } catch (err) {
-    return { pass: false, errorMessage: err.message };
+    return { file: fileNamePart, pass: false, errorMessage: err.message };
   }
 };
 
+// ----------------------------
+
+/**
+ *
+ * @param {string} fileName
+ * @returns {number} startIndex part of fileName, or -1 if startIndex part is not found
+ */
+const getStartIndexFromFileName = (fileName) => {
+  const indexRegex = /_(\d+)\.[^.]+/;
+  const res = fileName.match(indexRegex);
+  return res ? parseInt(res[1]) : -1;
+};
+
+// ----------------------------
+
 module.exports = {
+  DEFAULT_OPTIONS,
+  getStartIndexFromFileName,
   getCodeBlockList,
   checkOneFile,
 };
