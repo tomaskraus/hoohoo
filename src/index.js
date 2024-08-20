@@ -12,8 +12,8 @@ const { extract } = require("./main");
 const safeRunner = async (asyncFn) => {
   const DEFAULT_RET_CODE = 1;
   try {
-    const result = await asyncFn();
-    return result;
+    const code = await asyncFn();
+    return code;
   } catch (err) {
     const err2 = new Error(err.message, { cause: err });
     console.log(err2);
