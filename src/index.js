@@ -5,7 +5,7 @@
 // const Path = require("path");
 const { Command, createOption } = require("commander");
 
-const { extract, check } = require("./main");
+const { APP_NAME, extract, check } = require("./main");
 
 // ------------------------------------------
 
@@ -24,7 +24,7 @@ const safeRunner = async (asyncFn) => {
 // ---------------------------------------------------------------
 
 const program = new Command();
-program.name("hoohoo").showHelpAfterError();
+program.name(APP_NAME).showHelpAfterError();
 
 const jsDirOption = createOption(
   "-j, --jsDir <dirName>",
@@ -62,8 +62,8 @@ program
   .addHelpText(
     "after",
     `example: 
-    hoohoo e
-    hoohoo extract views/detail.md
+    ${APP_NAME} e
+    ${APP_NAME} extract views/detail.md
 
     `
   )
@@ -94,9 +94,9 @@ program
   .addHelpText(
     "after",
     `example: 
-    hoohoo c
-    hoohoo check views/detail.md
-    hoohoo check --no-extract views/detail.md
+    ${APP_NAME} c
+    ${APP_NAME} check views/detail.md
+    ${APP_NAME} check --no-extract views/detail.md
     `
   )
   .action(async (mdFile, options) => {
