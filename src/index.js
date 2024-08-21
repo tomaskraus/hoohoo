@@ -28,8 +28,8 @@ program.name(APP_NAME).showHelpAfterError();
 
 const jsDirOption = createOption(
   "-j, --jsDir <dirName>",
-  "directory of source's generated javascript file"
-).default("dist");
+  "directory of javascript files to be checked"
+);
 
 const customAssertionMarkOption = createOption(
   "-m, --mark <assertionMark>",
@@ -48,7 +48,7 @@ const codeBlocLanguageExtensionOption = createOption(
 
 const getBusinessLogicOptions = (options) => ({
   languageExtension: options.languageExtension,
-  doExtractStep: options.extract,
+  jsDir: options.jsDir,
 });
 
 // ----------------------
@@ -75,13 +75,6 @@ program
 
 // ----------------------
 
-const noExtractOption = createOption(
-  "--no-extract",
-  "skips the markdown-file-extraction step"
-);
-
-// ----------------------
-
 program
   .command("check")
   .alias("c")
@@ -90,7 +83,7 @@ program
     "Check js examples from the markdown file: tests examples for runnability, tests each example output against examples' assertions."
   )
   .addOption(codeBlocLanguageExtensionOption)
-  .addOption(noExtractOption)
+  .addOption(jsDirOption)
   .addHelpText(
     "after",
     `example: 

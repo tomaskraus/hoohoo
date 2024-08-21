@@ -27,7 +27,7 @@ const logAndPrint = (msg) => {
 
 const DEFAULT_OPTIONS = {
   languageExtension: "js",
-  doExtractStep: true,
+  jsDir: null,
 };
 
 const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
@@ -78,35 +78,55 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
   });
 };
 
+const hasJsDir = (options) =>
+  options.jsDir !== null && options.jsDir !== undefined;
+
 const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
-  const extractedDirName = getExtractedDirName(mdFileName);
+  const customDirMode = hasJsDir(options);
+  if (customDirMode) {
+    log(
+      `+++ Custom dir mode is active. \n    Check will not extract examples nor provide line numbers on examples' runtime errors.`
+    );
+  }
+
+  const extractedDirName = getExtractedDirName(mdFileName, options.jsDir);
+
+  const langExt = customDirMode
+    ? getFileExtensionFromLanguage("js")
+    : getFileExtensionFromLanguage(options.languageExtension);
+
   logAndPrint(`temporary example extraction dir: [${extractedDirName}]`);
   logAndPrint(
     `checking [${options.languageExtension}] examples of [${mdFileName}]`
   );
 
-  if (options.doExtractStep) {
+  if (!customDirMode) {
     await extract(mdFileName, options);
   } else {
     log("- Skipping the extraction step.");
   }
 
-  const headerFileName = getHeaderFileName(
-    mdFileName,
-    options.languageExtension
-  );
-  log(`looking for a [${headerFileName}] line count`);
-  const headerLineCount = (await loadSafeInputFileLines(headerFileName)).length;
-  log(`header file line count: [${headerLineCount}]`);
+  let headerLineCount = 0;
+  if (!customDirMode) {
+    const headerFileName = getHeaderFileName(
+      mdFileName,
+      options.languageExtension
+    );
+    log(`looking for a [${headerFileName}] line count`);
+    headerLineCount = (await loadSafeInputFileLines(headerFileName)).length;
+    log(`header file line count: [${headerLineCount}]`);
+  }
 
+  const mdFileNameWithoutExt = Path.parse(mdFileName).name;
+  log(`mdFileNameWithoutExt: [${mdFileNameWithoutExt}]`);
   const exampleFiles = (await fs.readdir(extractedDirName))
-    .filter((name) =>
-      name.endsWith(
-        "." + getFileExtensionFromLanguage(options.languageExtension)
-      )
+    .filter(
+      (name) =>
+        name.startsWith(mdFileNameWithoutExt) &&
+        name.endsWith("." + getFileExtensionFromLanguage(langExt))
     )
     .map((f) => Path.join(extractedDirName, f));
-
+  log(`example file(s) found: `, exampleFiles);
   return Promise.all(
     exampleFiles.reduce((acc, name) => {
       // print(`check ${name}`);
@@ -134,7 +154,10 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
 
 const getFileExtensionFromLanguage = (languageExtension) => languageExtension;
 
-const getExtractedDirName = (fileName) => {
+const getExtractedDirName = (fileName, customDir = null) => {
+  if (customDir !== null) {
+    return Path.join(customDir);
+  }
   const p = Path.parse(fileName);
   return Path.join(p.dir, `${APP_NAME_SHORT}-extracted.${p.name}`);
 };
