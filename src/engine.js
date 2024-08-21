@@ -93,7 +93,7 @@ const addHeaderContent = (headerLines) => (codeBlock) => ({
 const checkOneFile = async (mdFileName, fileName, lineOffset = 0) => {
   log(`checkOneFile: checking file [${fileName}]:`);
   const startIndex = getStartIndexFromExtractedFileName(fileName);
-  const fileNamePart = `${mdFileName}:${startIndex + 1}`;
+  const generalFileAndLine = `${mdFileName}:${startIndex + 1}`;
 
   const context = {
     /*
@@ -113,12 +113,14 @@ const checkOneFile = async (mdFileName, fileName, lineOffset = 0) => {
       filename: mdFileName,
       lineOffset: startIndex - lineOffset,
     });
-    return { file: fileNamePart, pass: true };
+    return { file: generalFileAndLine, pass: true };
   } catch (err) {
+    log("vm err: ", err);
     return {
-      file: err.stack.split("\n")[0],
+      file: generalFileAndLine,
       pass: false,
       errorMessage: err.message,
+      stack: err.stack,
     };
   }
 };
