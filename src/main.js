@@ -102,8 +102,9 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
 const getFileExtensionFromLanguage = (languageExtension) => languageExtension;
 
 const getExtractedDirName = (fileName) => {
+  const fdir = Path.parse(fileName).dir;
   const fname = Path.parse(fileName).base;
-  return Path.join(".", `.${APP_NAME}.${fname}.extracted.dir`);
+  return Path.join(fdir, `.${APP_NAME}.${fname}.extracted`);
 };
 
 const getExtractedFileName = (
