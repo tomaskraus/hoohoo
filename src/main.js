@@ -91,6 +91,14 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
     log("- Skipping the extraction step.");
   }
 
+  const headerFileName = getHeaderFileName(
+    mdFileName,
+    options.languageExtension
+  );
+  log(`looking for a [${headerFileName}] line count`);
+  const headerLineCount = (await loadSafeInputFileLines(headerFileName)).length;
+  log(`header file line count: [${headerLineCount}]`);
+
   const exampleFiles = (await fs.readdir(extractedDirName))
     .filter((name) =>
       name.endsWith(
@@ -102,7 +110,7 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
   return Promise.all(
     exampleFiles.reduce((acc, name) => {
       // print(`check ${name}`);
-      return [...acc, engine.checkOneFile(mdFileName, name)];
+      return [...acc, engine.checkOneFile(mdFileName, name, headerLineCount)];
     }, [])
   ).then((examplesChecked) => {
     log("check: examples:", examplesChecked);
@@ -165,7 +173,7 @@ const loadInputFileLines = async (fileName) => {
 };
 
 const loadSafeInputFileLines = async (fileName) => {
-  let lines = null;
+  let lines = [];
   try {
     lines = await loadInputFileLines(fileName);
   } catch (err) {

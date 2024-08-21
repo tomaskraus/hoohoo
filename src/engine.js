@@ -86,13 +86,13 @@ const getCodeBlockList = (lines, languageExtension) => {
 };
 
 const addHeaderContent = (headerLines) => (codeBlock) => ({
-  startIndex: codeBlock.startIndex - headerLines.length,
+  startIndex: codeBlock.startIndex,
   data: [...headerLines, ...codeBlock.data],
 });
 
-const checkOneFile = async (mdFileName, fileName) => {
+const checkOneFile = async (mdFileName, fileName, lineOffset = 0) => {
   log(`checkOneFile: checking file [${fileName}]:`);
-  const startIndex = getStartIndexFromFileName(fileName);
+  const startIndex = getStartIndexFromExtractedFileName(fileName);
   const fileNamePart = `${mdFileName}:${startIndex + 1}`;
 
   const context = {
@@ -111,7 +111,7 @@ const checkOneFile = async (mdFileName, fileName) => {
   try {
     vm.runInContext(codeToRun, context, {
       filename: mdFileName,
-      lineOffset: startIndex,
+      lineOffset: startIndex - lineOffset,
     });
     return { file: fileNamePart, pass: true };
   } catch (err) {
