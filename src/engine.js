@@ -130,7 +130,7 @@ const checkOneFile = async (mdFileName, fileName, lineOffset = 0) => {
  * @param {string} fileName
  * @returns {number} startIndex part of fileName, or -1 if startIndex part is not found
  */
-const getStartIndexFromFileName = (fileName) => {
+const getStartIndexFromExtractedFileName = (fileName) => {
   const indexRegex = /_(\d+)\.[^.]+/;
   const res = fileName.match(indexRegex);
   return res ? parseInt(res[1]) : -1;
@@ -139,7 +139,7 @@ const getStartIndexFromFileName = (fileName) => {
 // ----------------------------
 
 module.exports = {
-  getStartIndexFromFileName,
+  getStartIndexFromExtractedFileName,
   getCodeBlockList,
   addHeaderContent,
   checkOneFile,

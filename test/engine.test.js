@@ -1,6 +1,6 @@
 const {
   getCodeBlockList,
-  getStartIndexFromFileName,
+  getStartIndexFromExtractedFileName,
   addHeaderContent,
 } = require("../src/engine");
 
@@ -203,14 +203,16 @@ world`.split("\n"),
 
 describe("engine.getStartIndexFromFileName", () => {
   test("returns startIndex part if startIndex part is present in the fileName", () => {
-    expect(getStartIndexFromFileName("file_123.xy")).toEqual(123);
-    expect(getStartIndexFromFileName("./tmp/file-20_30_0.xyz")).toEqual(0);
-    expect(getStartIndexFromFileName("_1.js")).toEqual(1);
+    expect(getStartIndexFromExtractedFileName("file_123.xy")).toEqual(123);
+    expect(
+      getStartIndexFromExtractedFileName("./tmp/file-20_30_0.xyz")
+    ).toEqual(0);
+    expect(getStartIndexFromExtractedFileName("_1.js")).toEqual(1);
   });
   test("returns -1 part if startIndex part is not present in the fileName", () => {
-    expect(getStartIndexFromFileName("file_.xy")).toEqual(-1);
-    expect(getStartIndexFromFileName("file.x")).toEqual(-1);
-    expect(getStartIndexFromFileName("123")).toEqual(-1);
-    expect(getStartIndexFromFileName("")).toEqual(-1);
+    expect(getStartIndexFromExtractedFileName("file_.xy")).toEqual(-1);
+    expect(getStartIndexFromExtractedFileName("file.x")).toEqual(-1);
+    expect(getStartIndexFromExtractedFileName("123")).toEqual(-1);
+    expect(getStartIndexFromExtractedFileName("")).toEqual(-1);
   });
 });
