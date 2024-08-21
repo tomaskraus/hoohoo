@@ -18,6 +18,11 @@ const log = appLog.extend("main");
 
 const print = console.error;
 
+const logAndPrint = (msg) => {
+  log(msg);
+  print(msg);
+};
+
 // -------------------------------------------
 
 const DEFAULT_OPTIONS = {
@@ -27,16 +32,21 @@ const DEFAULT_OPTIONS = {
 
 const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
   const extractedDirName = getExtractedDirName(mdFileName);
-  const message = `extracting [${options.languageExtension}] code blocks of [${mdFileName}] file to [${extractedDirName}] directory ...`;
-  log(message);
-  print(message);
+  logAndPrint(
+    `extracting [${options.languageExtension}] examples of [${mdFileName}] file to the [${extractedDirName}] directory ...`
+  );
 
   await resetDir(extractedDirName);
 
-  log(`looking for a [${options.languageExtension}] header file`);
-  const headerLines = await loadSafeInputFileLines(
-    getHeaderFileName(mdFileName, options.languageExtension)
+  const headerFileName = getHeaderFileName(
+    mdFileName,
+    options.languageExtension
   );
+
+  log(
+    `looking for a [${headerFileName}] [${options.languageExtension}] header file`
+  );
+  const headerLines = await loadSafeInputFileLines(headerFileName);
 
   const lines = await loadInputFileLines(mdFileName);
   let codeBlocks = engine.getCodeBlockList(lines, options.languageExtension);
@@ -61,18 +71,19 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
       fs.writeFile(fname, block.data.join("\n"));
     })
   ).then(() => {
-    const message = `extracted [${codeBlocks.length}] blocks to files under the [${extractedDirName}] directory`;
-    log(message);
-    print(message);
+    logAndPrint(
+      `extracted [${codeBlocks.length}] [${options.languageExtension}] examples from the [${mdFileName}] file to the [${extractedDirName}] directory.`
+    );
     return 0;
   });
 };
 
 const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
   const extractedDirName = getExtractedDirName(mdFileName);
-  const message = `checking [${options.languageExtension}] files of [${mdFileName}] file in the [${extractedDirName}] directory:`;
-  log(message);
-  print(message);
+  logAndPrint(`temporary example extraction dir: [${extractedDirName}]`);
+  logAndPrint(
+    `checking [${options.languageExtension}] examples of [${mdFileName}]`
+  );
 
   if (options.doExtractStep) {
     await extract(mdFileName, options);
@@ -80,7 +91,7 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
     log("- Skipping the extraction step.");
   }
 
-  const files = (await fs.readdir(extractedDirName))
+  const exampleFiles = (await fs.readdir(extractedDirName))
     .filter((name) =>
       name.endsWith(
         "." + getFileExtensionFromLanguage(options.languageExtension)
@@ -89,13 +100,16 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
     .map((f) => Path.join(extractedDirName, f));
 
   return Promise.all(
-    files.reduce((acc, name) => {
+    exampleFiles.reduce((acc, name) => {
       // print(`check ${name}`);
       return [...acc, engine.checkOneFile(mdFileName, name)];
     }, [])
-  ).then((results) => {
-    log("check: results:", results);
-    const fails = results.filter((res) => !res.pass);
+  ).then((examplesChecked) => {
+    log("check: examples:", examplesChecked);
+    print(
+      `[${examplesChecked.length}] [${options.languageExtension}] example(s) of [${mdFileName}] were checked.`
+    );
+    const fails = examplesChecked.filter((res) => !res.pass);
     const failedCount = fails.length;
     log(`failedCount: ${failedCount}`);
     if (failedCount > 0) {
