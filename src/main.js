@@ -161,6 +161,7 @@ const loadSafeInputFileLines = async (fileName) => {
 };
 
 module.exports = {
+  APP_NAME,
   extract,
   check,
 };
