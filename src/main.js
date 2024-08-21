@@ -4,6 +4,7 @@
  */
 
 const APP_NAME = "hoohoo";
+const APP_NAME_SHORT = "hh";
 
 const fs = require("fs/promises");
 const Path = require("path");
@@ -34,7 +35,7 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
 
   log(`looking for a [${options.languageExtension}] header file`);
   const headerLines = await loadSafeInputFileLines(
-    getHeaderFileName(mdFileName, options)
+    getHeaderFileName(mdFileName, options.languageExtension)
   );
 
   const lines = await loadInputFileLines(mdFileName);
@@ -112,16 +113,15 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
 const getFileExtensionFromLanguage = (languageExtension) => languageExtension;
 
 const getExtractedDirName = (fileName) => {
-  const fdir = Path.parse(fileName).dir;
-  const fname = Path.parse(fileName).base;
-  return Path.join(fdir, `.${APP_NAME}.${fname}.extracted`);
+  const p = Path.parse(fileName);
+  return Path.join(p.dir, `${APP_NAME_SHORT}-extracted.${p.name}`);
 };
 
-const getHeaderFileName = (fileName, { languageExtension }) => {
+const getHeaderFileName = (fileName, languageExtension) => {
   const p = Path.parse(fileName);
   return Path.join(
     p.dir,
-    `${APP_NAME}.${p.base}.header.${getFileExtensionFromLanguage(languageExtension)}`
+    `${APP_NAME_SHORT}-header.${p.name}.${getFileExtensionFromLanguage(languageExtension)}`
   );
 };
 
