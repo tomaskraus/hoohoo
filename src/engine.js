@@ -111,7 +111,7 @@ const checkOneFile = async (mdFileName, fileName, lineOffset = 0) => {
   try {
     vm.runInContext(codeToRun, context, {
       filename: mdFileName,
-      lineOffset: startIndex - lineOffset,
+      lineOffset: startIndex + lineOffset,
     });
     return { file: generalFileAndLine, pass: true };
   } catch (err) {

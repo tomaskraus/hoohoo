@@ -105,16 +105,19 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
   } else {
     log("- Skipping the extraction step.");
   }
-
-  let headerLineCount = 0;
+  //
+  let mdExampleLineOffset = 0;
   if (!customDirMode) {
     const headerFileName = getHeaderFileName(
       mdFileName,
       options.languageExtension
     );
-    log(`looking for a [${headerFileName}] line count`);
-    headerLineCount = (await loadSafeInputFileLines(headerFileName)).length;
-    log(`header file line count: [${headerLineCount}]`);
+    log(
+      `looking for a [${headerFileName}] line count to compute a markdown example line offset`
+    );
+    mdExampleLineOffset = -(await loadSafeInputFileLines(headerFileName))
+      .length;
+    log(`mdExampleLineOffset: [${mdExampleLineOffset}]`);
   }
 
   const mdFileNameWithoutExt = Path.parse(mdFileName).name;
@@ -128,9 +131,12 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
     .map((f) => Path.join(extractedDirName, f));
   log(`example file(s) found: `, exampleFiles);
   return Promise.all(
-    exampleFiles.reduce((acc, name) => {
+    exampleFiles.reduce((acc, fileName) => {
       // print(`check ${name}`);
-      return [...acc, engine.checkOneFile(mdFileName, name, headerLineCount)];
+      return [
+        ...acc,
+        engine.checkOneFile(mdFileName, fileName, mdExampleLineOffset),
+      ];
     }, [])
   ).then((examplesChecked) => {
     log("check: examples:", examplesChecked);
