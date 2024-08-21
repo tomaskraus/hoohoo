@@ -6,11 +6,12 @@ Hoo Hoo |\__/|
  +------| . .|
  | js   |__.\|
  | //=>  j  j
- +-------+    
+ +-------+
 ```
 
-**hoohoo** is a command-line tool for _Javascript/Typescript_ examples in your _markdown_ document.  
-hoohoo can: 
+**hoohoo** is a command-line tool for _JavaScript/TypeScript_ examples in your _markdown_ document.  
+hoohoo can:
+
 - extract examples to the directory
-- check examples in your Markdown document if they are runnable
+- run examples in your Markdown document and check them for errors
 - test the output of examples against assertions written in examples' comments
