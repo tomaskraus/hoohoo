@@ -38,6 +38,10 @@ const getCodeBlockList = (lines, languageExtension) => {
         ) {
           // skip mark detected
           return [blocks, state, [], 0, true];
+        } else if (line.trim() === MARKDOWN_BLOCK) {
+          // cancel the skip mark
+          // as skip-mark is only valid for the very next code-block, no matter of its language extension
+          return [blocks, state, [], 0, false];
         } else {
           // no-block continues
           return [blocks, state, [], 0, isSkip];

@@ -153,6 +153,25 @@ b2
 
     expect(results.length).toEqual(0);
   });
+
+  test("skip-comment's power ends at the very next closing markdown code-tag, regardless of the language extension of opening code-tag", () => {
+    const results = getCodeBlockList(
+      `hello,
+  <!-- skip --> 
+    
+\`\`\`js
+b1
+\`\`\` 
+
+\`\`\`ts
+b2
+\`\`\``.split("\n"),
+      "ts"
+    );
+    expect(results.length).toEqual(1);
+    expect(results[0].startIndex).toEqual(8);
+    expect(results[0].data).toEqual(["b2"]);
+  });
 });
 
 // ---------------------------
