@@ -77,9 +77,14 @@ const getCodeBlockList = (lines, languageExtension) => {
     [[], S_NO_BLOCK, [], 0]
   );
   const codeBlocks = res[0];
-  log(`code blocks: `, codeBlocks);
+  log(`code blocks count: [${codeBlocks.length}]`);
   return codeBlocks;
 };
+
+const addHeaderContent = (headerLines) => (codeBlock) => ({
+  startIndex: codeBlock.startIndex - headerLines.length,
+  data: [...headerLines, ...codeBlock.data],
+});
 
 const checkOneFile = async (mdFileName, fileName) => {
   log(`checkOneFile: checking file [${fileName}]:`);
@@ -132,5 +137,6 @@ const getStartIndexFromFileName = (fileName) => {
 module.exports = {
   getStartIndexFromFileName,
   getCodeBlockList,
+  addHeaderContent,
   checkOneFile,
 };

@@ -32,8 +32,18 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
 
   await resetDir(extractedDirName);
 
+  log(`looking for a [${options.languageExtension}] header file`);
+  const headerLines = await loadSafeInputFileLines(
+    getHeaderFileName(mdFileName, options)
+  );
+
   const lines = await loadInputFileLines(mdFileName);
-  const codeBlocks = engine.getCodeBlockList(lines, options.languageExtension);
+  let codeBlocks = engine.getCodeBlockList(lines, options.languageExtension);
+  if (headerLines) {
+    log(`header file lines: `, headerLines);
+    codeBlocks = codeBlocks.map(engine.addHeaderContent(headerLines));
+  }
+  log(`code blocks: `, codeBlocks);
 
   return Promise.all(
     codeBlocks.map((block, index) => {
@@ -107,6 +117,14 @@ const getExtractedDirName = (fileName) => {
   return Path.join(fdir, `.${APP_NAME}.${fname}.extracted`);
 };
 
+const getHeaderFileName = (fileName, { languageExtension }) => {
+  const p = Path.parse(fileName);
+  return Path.join(
+    p.dir,
+    `${APP_NAME}.${p.base}.header.${getFileExtensionFromLanguage(languageExtension)}`
+  );
+};
+
 const getExtractedFileName = (
   fileName,
   index,
@@ -130,6 +148,16 @@ const loadInputFileLines = async (fileName) => {
   log(`opening input file [${fileName}]`);
   const data = await fs.readFile(fileName, { encoding: "utf-8" });
   return data.split("\n");
+};
+
+const loadSafeInputFileLines = async (fileName) => {
+  let lines = null;
+  try {
+    lines = await loadInputFileLines(fileName);
+  } catch (err) {
+    log(`loadSafe not successful: [${err.message}]`);
+  }
+  return lines;
 };
 
 module.exports = {

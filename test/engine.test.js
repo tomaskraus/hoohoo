@@ -1,6 +1,7 @@
 const {
   getCodeBlockList,
   getStartIndexFromFileName,
+  addHeaderContent,
 } = require("../src/engine");
 
 describe("engine.getCodeBlockList", () => {
@@ -69,6 +70,8 @@ b2
     expect(results[0].data).toEqual(["b2"]);
   });
 });
+
+// ---------------------------
 
 describe("engine.getCodeBlockList - skip marks", () => {
   test("skip code blocks with the same languageType if there is a skip-comment before them", () => {
@@ -149,6 +152,30 @@ b2
     );
 
     expect(results.length).toEqual(0);
+  });
+});
+
+// ---------------------------
+
+describe("engine.getCodeBlockList - addHeaderLines", () => {
+  test("adds a header content to the item from input with one code block", () => {
+    const result = getCodeBlockList(
+      `hello,
+\`\`\`js
+code 
+ block
+\`\`\` 
+world`.split("\n"),
+      "js"
+    );
+    expect(result.length).toEqual(1);
+    expect(result[0].startIndex).toEqual(2);
+    expect(result[0].data).toEqual(["code ", " block"]);
+
+    const newResult = result.map(addHeaderContent(["include", "---"]));
+    expect(newResult.length).toEqual(1);
+    expect(newResult[0].startIndex).toEqual(2);
+    expect(newResult[0].data).toEqual(["include", "---", "code ", " block"]);
   });
 });
 
