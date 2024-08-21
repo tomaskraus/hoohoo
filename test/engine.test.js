@@ -161,6 +161,7 @@ describe("engine.getCodeBlockList - addHeaderLines", () => {
   test("adds a header content to the item from input with one code block", () => {
     const result = getCodeBlockList(
       `hello,
+      x
 \`\`\`js
 code 
  block
@@ -169,12 +170,12 @@ world`.split("\n"),
       "js"
     );
     expect(result.length).toEqual(1);
-    expect(result[0].startIndex).toEqual(2);
+    expect(result[0].startIndex).toEqual(3);
     expect(result[0].data).toEqual(["code ", " block"]);
 
     const newResult = result.map(addHeaderContent(["include", "---"]));
     expect(newResult.length).toEqual(1);
-    expect(newResult[0].startIndex).toEqual(2);
+    expect(newResult[0].startIndex).toEqual(1); // 3 - header lines count
     expect(newResult[0].data).toEqual(["include", "---", "code ", " block"]);
   });
 });
