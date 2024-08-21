@@ -36,9 +36,9 @@ const customAssertionMarkOption = createOption(
   "sets a custom assertion mark"
 ).default("//=>");
 
-const keepTempFileOption = createOption(
-  "-k, --keepTempFile",
-  "does not delete temporary files after use"
+const keepTempFilesOption = createOption(
+  "-k, --keepExtracted",
+  "does not delete the directory with extracted examples after command run"
 );
 
 const codeBlocLanguageExtensionOption = createOption(
@@ -48,6 +48,7 @@ const codeBlocLanguageExtensionOption = createOption(
 
 const getBusinessLogicOptions = (options) => ({
   languageExtension: options.languageExtension,
+  keepExtracted: options.keepExtracted,
   jsDir: options.jsDir,
 });
 
@@ -84,6 +85,7 @@ program
   )
   .addOption(codeBlocLanguageExtensionOption)
   .addOption(jsDirOption)
+  .addOption(keepTempFilesOption)
   .addHelpText(
     "after",
     `example: 

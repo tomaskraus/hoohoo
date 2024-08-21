@@ -27,6 +27,7 @@ const logAndPrint = (msg) => {
 
 const DEFAULT_OPTIONS = {
   languageExtension: "js",
+  keepExtracted: false,
   jsDir: null,
 };
 
@@ -35,9 +36,11 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
   logAndPrint(
     `extracting [${options.languageExtension}] examples of [${mdFileName}] file to the [${extractedDirName}] directory ...`
   );
-
-  await resetDir(extractedDirName);
-
+  //
+  await deleteWholeDir(extractedDirName);
+  await fs.mkdir(extractedDirName);
+  log(`created a directory [${extractedDirName}]`);
+  //
   const headerFileName = getHeaderFileName(
     mdFileName,
     options.languageExtension
@@ -47,7 +50,7 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
     `looking for a [${headerFileName}] [${options.languageExtension}] header file`
   );
   const headerLines = await loadSafeInputFileLines(headerFileName);
-
+  //
   const lines = await loadInputFileLines(mdFileName);
   let codeBlocks = engine.getCodeBlockList(lines, options.languageExtension);
   if (headerLines) {
@@ -55,7 +58,7 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
     codeBlocks = codeBlocks.map(engine.addHeaderContent(headerLines));
   }
   log(`code blocks: `, codeBlocks);
-
+  //
   return Promise.all(
     codeBlocks.map((block, index) => {
       const fname = Path.join(
@@ -88,18 +91,16 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
       `+++ Custom dir mode is active. \n    Check will not extract examples nor provide line numbers on examples' runtime errors.`
     );
   }
-
+  //
   const extractedDirName = getExtractedDirName(mdFileName, options.jsDir);
-
   const langExt = customDirMode
     ? getFileExtensionFromLanguage("js")
     : getFileExtensionFromLanguage(options.languageExtension);
-
   logAndPrint(`temporary example extraction dir: [${extractedDirName}]`);
   logAndPrint(
     `checking [${options.languageExtension}] examples of [${mdFileName}]`
   );
-
+  //
   if (!customDirMode) {
     await extract(mdFileName, options);
   } else {
@@ -119,7 +120,7 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
       .length;
     log(`mdExampleLineOffset: [${mdExampleLineOffset}]`);
   }
-
+  //
   const mdFileNameWithoutExt = Path.parse(mdFileName).name;
   log(`mdFileNameWithoutExt: [${mdFileNameWithoutExt}]`);
   const exampleFiles = (await fs.readdir(extractedDirName))
@@ -138,22 +139,29 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
         engine.checkOneFile(mdFileName, fileName, mdExampleLineOffset),
       ];
     }, [])
-  ).then((examplesChecked) => {
-    log("check: examples:", examplesChecked);
-    print(
-      `[${examplesChecked.length}] [${options.languageExtension}] example(s) of [${mdFileName}] were checked.`
-    );
-    const fails = examplesChecked.filter((res) => !res.pass);
-    const failedCount = fails.length;
-    log(`failedCount: ${failedCount}`);
-    if (failedCount > 0) {
-      for (f of fails) {
-        print(f);
+  )
+    .then((examplesChecked) => {
+      log("check: examples:", examplesChecked);
+      print(
+        `[${examplesChecked.length}] [${options.languageExtension}] example(s) of [${mdFileName}] were checked.`
+      );
+      const fails = examplesChecked.filter((res) => !res.pass);
+      const failedCount = fails.length;
+      log(`failedCount: ${failedCount}`);
+      if (failedCount > 0) {
+        for (f of fails) {
+          print(f);
+        }
+        return 1;
       }
-      return 1;
-    }
-    return 0;
-  });
+      return 0;
+    })
+    .finally(() => {
+      if (!options.keepExtracted && !customDirMode) {
+        deleteWholeDir(extractedDirName);
+      }
+      log("-- check END ----------------");
+    });
 };
 
 // -------------------------------------------
@@ -184,10 +192,10 @@ const getExtractedFileName = (
 ) =>
   `${Path.parse(fileName).name}-${(index + 1 + "").padStart(4, "0")}_${startIndex === -1 ? "" : startIndex}.${extensionWithoutLeadingDot}`;
 
-const resetDir = async (extractDirName) => {
-  log(`resetDir:  [${extractDirName}]`);
-  await fs.rm(extractDirName, { recursive: true, force: true });
-  await fs.mkdir(extractDirName);
+const deleteWholeDir = async (dirName) => {
+  log(`deleteWholeDir:  [${dirName}] ...`);
+  await fs.rm(dirName, { recursive: true, force: true });
+  log(`  ...deleted`);
 };
 
 /**
