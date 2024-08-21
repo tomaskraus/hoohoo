@@ -27,6 +27,20 @@ Typescript example:
 ```ts
 type TPoint = [Number, Number];
 const pa: TPoint = [1, 2];
+
+const swap = (pt: TPoint): TPoint => [pt[1], pt[0]]
+
+console.log(swap([10, 5]));
+//=> [5, 10]
+```
+
+TS example with error:
+```ts
+
+let count: Number;
+
+console.log(JSON.parse("abc").count)
+
 ```
 
 Another example:
