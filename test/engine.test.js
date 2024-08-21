@@ -194,7 +194,7 @@ world`.split("\n"),
 
     const newResult = result.map(addHeaderContent(["include", "---"]));
     expect(newResult.length).toEqual(1);
-    expect(newResult[0].startIndex).toEqual(1); // 3 - header lines count
+    expect(newResult[0].startIndex).toEqual(3);
     expect(newResult[0].data).toEqual(["include", "---", "code ", " block"]);
   });
 });
