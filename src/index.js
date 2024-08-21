@@ -89,7 +89,7 @@ program
     `example: 
     ${APP_NAME} c
     ${APP_NAME} check views/detail.md
-    ${APP_NAME} check --no-extract views/detail.md
+    ${APP_NAME} check --jsDir views/hh-extracted.detail
     `
   )
   .action(async (mdFile, options) => {
