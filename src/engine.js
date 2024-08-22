@@ -10,6 +10,12 @@ const log = appLog.extend("engine");
 
 // -------------------------------------------------------
 
+/**
+ *
+ * @param {*} lines
+ * @param {*} languageExtension
+ * @returns
+ */
 const getCodeBlockList = (lines, languageExtension) => {
   const MARKDOWN_BLOCK = "```";
   const S_NO_BLOCK = 0;
