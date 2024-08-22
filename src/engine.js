@@ -53,17 +53,9 @@ const getCodeBlockList = (lines, languageExtension) => {
         }
       } else if (state === S_BLOCK) {
         if (line.trim() === MARKDOWN_BLOCK) {
-          if (isSkip) {
-            //skip the accumlator and continue
-            log(
-              `- this code block starting at index [${startIndex}] will be skipped:\n`,
-              blockAcc
-            );
-            return [blocks, S_NO_BLOCK, [], 0, false];
-          }
-          // flush the accumulator, add its content to blocks, reset skip-mark
+          // flush the accumulator, add its content to blocks, reset skip-flag
           return [
-            [...blocks, { startIndex, data: blockAcc }],
+            [...blocks, { startIndex, data: blockAcc, skip: isSkip }],
             S_NO_BLOCK,
             [],
             0,

@@ -60,7 +60,9 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
   let codeBlocks = engine
     .getCodeBlockList(lines, options.languageExtension)
     // remove blocks with an "empty" content
-    .filter((b) => b.data.filter((line) => line.trim() !== "").length > 0);
+    .filter((b) => b.data.filter((line) => line.trim() !== "").length > 0)
+    // remove block that are marked as skipped
+    .filter((b) => !b.skip);
   if (headerLines) {
     log(`header file lines: `, headerLines);
     codeBlocks = codeBlocks.map(engine.addHeaderContent(headerLines));
