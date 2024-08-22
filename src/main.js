@@ -239,13 +239,11 @@ const deleteExtractedExamples = async (mdFileName, languageExtension) => {
   );
   log(`  [${filesToDelete.length}] file(s) to delete`);
 
-  return Promise.all(
-    filesToDelete.map((fileName) => {
-      fs.rm(fileName);
-    })
-  ).finally(() => {
-    log(`  ... deleted`);
-  });
+  return Promise.all(filesToDelete.map((fileName) => fs.rm(fileName))).finally(
+    () => {
+      log(`  ... deleted`);
+    }
+  );
 };
 
 /**
