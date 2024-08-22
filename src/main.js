@@ -37,9 +37,8 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
     `extracting [${options.languageExtension}] examples of [${mdFileName}] file to the [${extractedDirName}] directory ...`
   );
   //
-  await deleteWholeDir(extractedDirName);
-  await fs.mkdir(extractedDirName);
-  log(`created a directory [${extractedDirName}]`);
+  await createDirIfNotExists(extractedDirName);
+  await deleteExtractedExamples(mdFileName, options.languageExtension);
   //
   const headerFileName = getHeaderFileName(
     mdFileName,
@@ -85,6 +84,7 @@ const hasJsDir = (options) =>
   options.jsDir !== null && options.jsDir !== undefined;
 
 const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
+  log(`check markDown file name: [${mdFileName}]: `);
   const customDirMode = hasJsDir(options);
   if (customDirMode) {
     log(
@@ -96,13 +96,14 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
   const langExt = customDirMode
     ? getFileExtensionFromLanguage("js")
     : getFileExtensionFromLanguage(options.languageExtension);
-  logAndPrint(`temporary example extraction dir: [${extractedDirName}]`);
+  logAndPrint(`extracted examples dir: [${extractedDirName}]`);
   logAndPrint(
     `checking [${options.languageExtension}] examples of [${mdFileName}]`
   );
   //
   if (!customDirMode) {
     await extract(mdFileName, options);
+    log("- - - - - extracting step done");
   } else {
     log("- Skipping the extraction step.");
   }
@@ -121,22 +122,18 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
     log(`mdExampleLineOffset: [${mdExampleLineOffset}]`);
   }
   //
-  const mdFileNameWithoutExt = Path.parse(mdFileName).name;
-  log(`mdFileNameWithoutExt: [${mdFileNameWithoutExt}]`);
-  const exampleFiles = (await fs.readdir(extractedDirName))
-    .filter(
-      (name) =>
-        name.startsWith(mdFileNameWithoutExt) &&
-        name.endsWith("." + getFileExtensionFromLanguage(langExt))
-    )
-    .map((f) => Path.join(extractedDirName, f));
-  log(`example file(s) found: `, exampleFiles);
+
+  const exampleFiles = await getExtractedFileNames(
+    extractedDirName,
+    mdFileName,
+    getFileExtensionFromLanguage(langExt)
+  );
   return Promise.all(
     exampleFiles.reduce((acc, fileName) => {
       // print(`check ${name}`);
       return [
         ...acc,
-        engine.checkOneFile(mdFileName, fileName, mdExampleLineOffset),
+        engine.checkOneFile(mdFileName, fileName, "", mdExampleLineOffset),
       ];
     }, [])
   )
@@ -158,29 +155,48 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
     })
     .finally(() => {
       if (!options.keepExtracted && !customDirMode) {
-        deleteWholeDir(extractedDirName);
+        deleteExtractedExamples(mdFileName, options.languageExtension);
       }
       log("-- check END ----------------");
     });
 };
 
 // -------------------------------------------
+const getExtractedFileNames = async (
+  extractedDirName,
+  mdFileName,
+  languageExtension
+) => {
+  log(
+    `get [${languageExtension}] example file names in the [${extractedDirName}] directory...`
+  );
+  const mdFileNameWithoutExt = Path.parse(mdFileName).name;
+  const extractedFileNames = (await fs.readdir(extractedDirName))
+    .filter(
+      (name) =>
+        name.startsWith("_" + mdFileNameWithoutExt) &&
+        name.endsWith("." + getFileExtensionFromLanguage(languageExtension))
+    )
+    .map((f) => Path.join(extractedDirName, f));
+  log(`example file(s) found: `, extractedFileNames);
+  return extractedFileNames;
+};
 
 const getFileExtensionFromLanguage = (languageExtension) => languageExtension;
 
-const getExtractedDirName = (fileName, customDir = null) => {
+const getExtractedDirName = (mdFileName, customDir = null) => {
   if (customDir !== null) {
     return Path.join(customDir);
   }
-  const p = Path.parse(fileName);
-  return Path.join(p.dir, `${APP_NAME_SHORT}-extracted.${p.name}`);
+  const p = Path.parse(mdFileName);
+  return Path.join(p.dir, `${p.name}_${APP_NAME_SHORT}`);
 };
 
-const getHeaderFileName = (fileName, languageExtension) => {
-  const p = Path.parse(fileName);
+const getHeaderFileName = (mdFileName, languageExtension) => {
+  const p = Path.parse(mdFileName);
   return Path.join(
-    p.dir,
-    `${APP_NAME_SHORT}-header.${p.name}.${getFileExtensionFromLanguage(languageExtension)}`
+    getExtractedDirName(mdFileName),
+    `header.${getFileExtensionFromLanguage(languageExtension)}`
   );
 };
 
@@ -190,12 +206,26 @@ const getExtractedFileName = (
   startIndex,
   extensionWithoutLeadingDot
 ) =>
-  `${Path.parse(fileName).name}-${(index + 1 + "").padStart(4, "0")}_${startIndex === -1 ? "" : startIndex}.${extensionWithoutLeadingDot}`;
+  `_${Path.parse(fileName).name}_${(index + 1 + "").padStart(4, "0")}_${startIndex === -1 ? "" : startIndex}.${extensionWithoutLeadingDot}`;
 
-const deleteWholeDir = async (dirName) => {
-  log(`deleteWholeDir:  [${dirName}] ...`);
-  await fs.rm(dirName, { recursive: true, force: true });
-  log(`  ...deleted`);
+const createDirIfNotExists = async (dirName) => {
+  log(`createDirIfNotExists:  [${dirName}] ...`);
+  try {
+    await fs.mkdir(dirName);
+  } catch (err) {
+    if (err.code !== "EEXIST") throw err;
+  }
+  log(`created a directory [${dirName}]`);
+};
+
+const deleteExtractedExamples = async (mdFileName, languageExtension) => {
+  const dir = getExtractedDirName(mdFileName);
+  log(
+    `delete extracted [${languageExtension}] examples from the [${mdFileName}] directory ...`
+  );
+  log(`...NOT IMPLEMENTED`);
+  // await fs.rm(dirName, { recursive: true, force: true });
+  // log(`  ...deleted`);
 };
 
 /**

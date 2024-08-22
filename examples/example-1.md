@@ -15,6 +15,14 @@ This is an empty code block:
 ```js
 ```
 
+Code block that needs a js header file to require a local file:
+```js
+  // try this:
+  const sum = add(1)(2);
+  console.log(sum);
+  //=> 3
+```
+
 This js code block will be skipped:
 
 <!-- skip-example -->
@@ -32,6 +40,8 @@ const swap = (pt: TPoint): TPoint => [pt[1], pt[0]]
 
 console.log(swap([10, 5]));
 //=> [5, 10]
+
+console.log(square(10));
 ```
 
 TS example with error:

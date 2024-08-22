@@ -91,7 +91,7 @@ program
     `example: 
     ${APP_NAME} c
     ${APP_NAME} check views/detail.md
-    ${APP_NAME} check --jsDir views/hh-extracted.detail
+    ${APP_NAME} check --jsDir views/detail_hh
     `
   )
   .action(async (mdFile, options) => {

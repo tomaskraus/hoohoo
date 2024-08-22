@@ -136,4 +136,4 @@ dist
 # clogtest temp files
 .clogtest.*
 # hoohoo extracted files
-hh-extracted*/
+**/*_hh/_*
