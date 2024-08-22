@@ -141,13 +141,9 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
     getFileExtensionFromLanguage(langExt)
   );
   return Promise.all(
-    exampleFiles.reduce((acc, fileName) => {
-      // print(`check ${name}`);
-      return [
-        ...acc,
-        engine.checkOneFile(mdFileName, fileName, "", mdExampleLineOffset),
-      ];
-    }, [])
+    exampleFiles.map((fileName) =>
+      engine.checkOneFile(mdFileName, fileName, "", mdExampleLineOffset)
+    )
   )
     .then((examplesChecked) => {
       log("check: examples:", examplesChecked);
