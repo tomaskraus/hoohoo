@@ -76,7 +76,7 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
         getExtractedFileName(
           mdFileName,
           index,
-          block.startIndex,
+          block.startIndex + 1,
           getFileExtensionFromLanguage(options.languageExtension)
         )
       );

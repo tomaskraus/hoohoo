@@ -139,7 +139,7 @@ const checkOneFile = async (
 const getStartIndexFromExtractedFileName = (fileName) => {
   const indexRegex = /_(\d+)\.[^.]+/;
   const res = fileName.match(indexRegex);
-  return res ? parseInt(res[1]) : -1;
+  return res ? parseInt(res[1] - 1) : -1;
 };
 
 // ----------------------------
