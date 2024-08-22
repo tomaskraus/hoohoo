@@ -15,6 +15,12 @@ This is an empty code block:
 ```js
 ```
 
+This is an empty code block #2:
+
+```js
+  
+```
+
 Code block that needs a js header file to require a local file:
 ```js
   // try this:

@@ -57,7 +57,10 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
   const headerLines = await loadSafeInputFileLines(headerFileName);
   //
   const lines = await loadInputFileLines(mdFileName);
-  let codeBlocks = engine.getCodeBlockList(lines, options.languageExtension);
+  let codeBlocks = engine
+    .getCodeBlockList(lines, options.languageExtension)
+    // remove blocks with an "empty" content
+    .filter((b) => b.data.filter((line) => line.trim() !== "").length > 0);
   if (headerLines) {
     log(`header file lines: `, headerLines);
     codeBlocks = codeBlocks.map(engine.addHeaderContent(headerLines));

@@ -38,18 +38,21 @@ world`.split("\n"),
     expect(result[0].data).toEqual(["code ", " block"]);
   });
 
-  test("omits empty code blocks", () => {
-    expect(
-      getCodeBlockList(
-        `hello,
+  test("returns also empty code blocks", () => {
+    const results = getCodeBlockList(
+      `hello,
 \`\`\`js
 \`\`\` 
 world
-\`\`\`
+\`\`\`js
+ 
 \`\`\``.split("\n"),
-        "js"
-      )
-    ).toEqual([]);
+      "js"
+    );
+
+    expect(results.length).toEqual(2);
+    expect(results[0].data).toEqual([]);
+    expect(results[1].data).toEqual([" "]);
   });
 
   test("omits code blocks with different languageType", () => {

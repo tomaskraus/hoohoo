@@ -19,7 +19,6 @@ const log = appLog.extend("engine");
 const getCodeBlockList = (lines, languageExtension) => {
   const MARKDOWN_BLOCK = "```";
   const S_NO_BLOCK = 0;
-  const S_START_BLOCK = 1;
   const S_BLOCK = 2;
 
   const COMMENT_REGEX = /^\s*<!--\s+([a-z-]+)\s+-->\s*$/;
@@ -37,7 +36,7 @@ const getCodeBlockList = (lines, languageExtension) => {
           : null;
         if (line.trim() === MARKDOWN_BLOCK + languageExtension) {
           // start of a block
-          return [blocks, S_START_BLOCK, [], index + 1, isSkip];
+          return [blocks, S_BLOCK, [], index + 1, isSkip];
         } else if (
           commentContent === SKIP_MARK_1 ||
           commentContent === SKIP_MARK_2
@@ -52,13 +51,6 @@ const getCodeBlockList = (lines, languageExtension) => {
           // no-block continues
           return [blocks, state, [], 0, isSkip];
         }
-      } else if (state === S_START_BLOCK) {
-        if (line.trim() === MARKDOWN_BLOCK) {
-          // empty code block detected
-          return [blocks, S_NO_BLOCK, [], 0, isSkip];
-        }
-        // push the first line of the code block to the accumulator
-        return [blocks, S_BLOCK, [line], startIndex, isSkip];
       } else if (state === S_BLOCK) {
         if (line.trim() === MARKDOWN_BLOCK) {
           if (isSkip) {
