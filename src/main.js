@@ -173,7 +173,8 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
     });
 };
 
-// -------------------------------------------
+// ---------------------------------------------------------
+
 const getExtractedFileNames = async (
   extractedDirName,
   mdFileName,
@@ -231,13 +232,24 @@ const createDirIfNotExists = async (dirName) => {
 };
 
 const deleteExtractedExamples = async (mdFileName, languageExtension) => {
-  const dir = getExtractedDirName(mdFileName);
+  const extractedDirName = getExtractedDirName(mdFileName);
   log(
-    `delete extracted [${languageExtension}] examples from the [${mdFileName}] directory ...`
+    `delete extracted [${languageExtension}] examples from the [${extractedDirName}] directory ...`
   );
-  log(`...NOT IMPLEMENTED`);
-  // await fs.rm(dirName, { recursive: true, force: true });
-  // log(`  ...deleted`);
+  const filesToDelete = await getExtractedFileNames(
+    extractedDirName,
+    mdFileName,
+    getFileExtensionFromLanguage(languageExtension)
+  );
+  log(`  [${filesToDelete.length}] file(s) to delete`);
+
+  return Promise.all(
+    filesToDelete.map((fileName) => {
+      fs.rm(fileName);
+    })
+  ).finally(() => {
+    log(`  ... deleted`);
+  });
 };
 
 /**
