@@ -21,6 +21,17 @@ This is an empty code block #2:
   
 ```
 
+An example in a nested block
+<!--# skip -->
+````
+
+```js
+  const inc = add(1);
+  inc(5);
+  //=> 6
+```
+````
+
 Code block that needs a js header file to require a local file:
 ```js
   // try this:
