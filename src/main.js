@@ -31,6 +31,12 @@ const DEFAULT_OPTIONS = {
   jsDir: null,
 };
 
+/**
+ *
+ * @param {string} mdFileName
+ * @param {*} options
+ * @returns
+ */
 const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
   const extractedDirName = getExtractedDirName(mdFileName);
   logAndPrint(
@@ -83,6 +89,12 @@ const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
 const hasJsDir = (options) =>
   options.jsDir !== null && options.jsDir !== undefined;
 
+/**
+ *
+ * @param {string} mdFileName
+ * @param {*} options
+ * @returns
+ */
 const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
   log(`check markDown file name: [${mdFileName}]: `);
   const customDirMode = hasJsDir(options);
