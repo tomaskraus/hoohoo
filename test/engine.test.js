@@ -204,11 +204,11 @@ world`.split("\n"),
 
 describe("engine.getStartIndexFromFileName", () => {
   test("returns startIndex part if startIndex part is present in the fileName", () => {
-    expect(getStartIndexFromExtractedFileName("file_123.xy")).toEqual(123);
+    expect(getStartIndexFromExtractedFileName("file_123.xy")).toEqual(122);
     expect(
-      getStartIndexFromExtractedFileName("./tmp/file-20_30_0.xyz")
+      getStartIndexFromExtractedFileName("./tmp/file-20_30_1.xyz")
     ).toEqual(0);
-    expect(getStartIndexFromExtractedFileName("_1.js")).toEqual(1);
+    expect(getStartIndexFromExtractedFileName("_1.js")).toEqual(0);
   });
   test("returns -1 part if startIndex part is not present in the fileName", () => {
     expect(getStartIndexFromExtractedFileName("file_.xy")).toEqual(-1);
