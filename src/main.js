@@ -10,6 +10,7 @@ const fs = require("fs/promises");
 const Path = require("path");
 
 const engine = require("./engine.js");
+const { doCheck } = require("./code-test-service.js");
 
 const { appLog } = require("./logger.js");
 const log = appLog.extend("main");
@@ -125,7 +126,7 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
     log("- Skipping the extraction step.");
   }
   //
-  let mdExampleLineOffset = 0;
+  let exampleHeaderLineCount = 0;
   if (!customDirMode) {
     const headerFileName = getHeaderFileName(
       mdFileName,
@@ -134,9 +135,9 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
     log(
       `looking for a [${headerFileName}] line count to compute a markdown example line offset`
     );
-    mdExampleLineOffset = -(await loadSafeInputFileLines(headerFileName))
+    exampleHeaderLineCount = (await loadSafeInputFileLines(headerFileName))
       .length;
-    log(`mdExampleLineOffset: [${mdExampleLineOffset}]`);
+    log(`mdExampleHeaderLineOffset: [${exampleHeaderLineCount}]`);
   }
   //
 
@@ -146,9 +147,14 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
     getFileExtensionFromLanguage(langExt)
   );
   return Promise.all(
-    exampleFiles.map((fileName) =>
-      engine.checkOneFile(mdFileName, fileName, "", mdExampleLineOffset)
-    )
+    exampleFiles.map((fileName) => {
+      const startIndex = engine.getStartIndexFromExtractedFileName(fileName);
+      return doCheck(fileName, {
+        filenameSubstitute: mdFileName,
+        exampleStartLineInMd: startIndex + 1,
+        exampleHeaderLineCount,
+      });
+    })
   )
     .then((examplesChecked) => {
       log("check: examples:", examplesChecked);

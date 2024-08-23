@@ -80,55 +80,6 @@ const addHeaderContent = (headerLines) => (codeBlock) => ({
   data: [...headerLines, ...codeBlock.data],
 });
 
-const checkOneFile = async (
-  mdFileName,
-  fileName,
-  pathOffset,
-  lineOffset = 0
-) => {
-  log(`checkOneFile: checking file [${fileName}]:`);
-  const startIndex = getStartIndexFromExtractedFileName(fileName);
-  const generalFileAndLine = `${mdFileName}:${startIndex + 1}`;
-
-  const context = {
-    /*
-      change the "require" behavior in files when they are run!!!
-      when required, local files are always searched relative to CWD (current working dir), instead of the directory running file is in
-     */
-    require: (requiredFileName) => {
-      const fname = requiredFileName.startsWith(".")
-        ? Path.join(
-            process.cwd(),
-            Path.parse(fileName).dir,
-            pathOffset,
-            requiredFileName
-          )
-        : requiredFileName;
-      log(`require: [${fname}] (orig: [${requiredFileName}])`);
-      return require(fname);
-    },
-    console,
-    exports,
-  };
-  vm.createContext(context);
-  const codeToRun = await fs.readFile(fileName, { encoding: "utf-8" });
-  try {
-    vm.runInContext(codeToRun, context, {
-      filename: mdFileName,
-      lineOffset: startIndex + lineOffset,
-    });
-    return { file: generalFileAndLine, pass: true };
-  } catch (err) {
-    log("vm err: ", err);
-    return {
-      file: generalFileAndLine,
-      pass: false,
-      errorMessage: err.message,
-      stack: err.stack,
-    };
-  }
-};
-
 // ----------------------------
 
 /**
@@ -148,5 +99,4 @@ module.exports = {
   getStartIndexFromExtractedFileName,
   getCodeBlockList,
   addHeaderContent,
-  checkOneFile,
 };
