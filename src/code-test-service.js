@@ -47,10 +47,6 @@ const doCheck = async (
 // --------------------------------------------------
 
 const getContext = (fileName) => ({
-  /*
-    change the "require" behavior in files when they are run!!!
-    when required, local files are always searched relative to CWD (current working dir), instead of the directory running file is in
-   */
   require: (requiredFileName) => {
     const fname = requiredFileName.startsWith(".")
       ? Path.join(process.cwd(), Path.parse(fileName).dir, requiredFileName)
