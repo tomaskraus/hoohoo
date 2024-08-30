@@ -16,10 +16,9 @@ const { doCheck } = require("./code-test-service.js");
 const { appLog } = require("./logger.js");
 const log = appLog.extend("main");
 
+const { print, printFails, printResume } = require("./report.js");
 
 // -------------------------------------------
-
-// const print = console.error;
 
 const logAndPrint = (msg) => {
   log(msg);
@@ -118,6 +117,15 @@ const getHeaderFileLineCount = async (mdFileName, languageExtension) => {
 
 /**
  *
+ * @param {number} headerLineCount
+ * @param {number} startIndex
+ * @returns {lineNumberFn} computed line number
+ */
+const createCalculateLineNumber = (headerLineCount, startIndex) => (lineNum) =>
+  Math.max(lineNum - headerLineCount, 1) + startIndex;
+
+/**
+ *
  * @param {string} mdFileName
  * @param {DoCheckOptions} options
  * @returns
@@ -155,17 +163,6 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
     );
   }
   //
-
-  /**
-   *
-   * @param {number} headerLineCount
-   * @param {number} startIndex
-   * @returns {lineNumberFn} computed line number
-   */
-  const createCalculateLineNumber =
-    (headerLineCount, startIndex) => (lineNum) =>
-      Math.max(lineNum - headerLineCount, 1) + startIndex;
-
   const exampleFiles = await getExtractedFileNames(
     extractedDirName,
     mdFileName,
@@ -192,10 +189,11 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
       const failedCount = fails.length;
       log(`failedCount: ${failedCount}`);
       if (failedCount > 0) {
-        for (f of fails) {
-          print(f);
-        }
-        return 1;
+        loadInputFileLines(mdFileName).then((srcLines) => {
+          printFails(fails, mdFileName, srcLines);
+          printResume(getStats(examplesChecked));
+          return 1;
+        });
       }
       return 0;
     })
@@ -303,6 +301,21 @@ const loadSafeInputFileLines = async (fileName) => {
     log(`loadSafe not successful: [${err.message}]`);
   }
   return lines;
+};
+
+/**
+ *
+ * @param {Object[]} results
+ * @returns Stats object: {totalCount, passedCount, failedCount, SkippedCount}
+ */
+const getStats = (results) => {
+  const notSkipped = results.filter((r) => !r.skip);
+  return {
+    totalCount: results.length,
+    passedCount: notSkipped.filter((r) => r.pass).length,
+    failedCount: notSkipped.filter((r) => !r.pass).length,
+    skippedCount: results.length - notSkipped.length,
+  };
 };
 
 module.exports = {

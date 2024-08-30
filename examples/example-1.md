@@ -61,6 +61,11 @@ console.log(swap([10, 5]));
 console.log(square(10));
 ```
 
+JS example that throws Error programmatically:
+```js
+throw new Error("Hoo!")
+```
+
 TS example with error:
 ```ts
 
