@@ -10,14 +10,16 @@ const fs = require("fs/promises");
 const Path = require("path");
 
 const engine = require("./engine.js");
+require("./code-service-types.js");
 const { doCheck } = require("./code-test-service.js");
 
 const { appLog } = require("./logger.js");
 const log = appLog.extend("main");
 
+
 // -------------------------------------------
 
-const print = console.error;
+// const print = console.error;
 
 const logAndPrint = (msg) => {
   log(msg);
@@ -35,7 +37,7 @@ const DEFAULT_OPTIONS = {
 /**
  *
  * @param {string} mdFileName
- * @param {*} options
+ * @param {DoCheckOptions} options
  * @returns
  */
 const extract = async (mdFileName, options = DEFAULT_OPTIONS) => {
@@ -98,7 +100,26 @@ const hasJsDir = (options) =>
 /**
  *
  * @param {string} mdFileName
- * @param {*} options
+ * @param {string} languageExtension
+ * @returns {number}
+ */
+const getHeaderFileLineCount = async (mdFileName, languageExtension) => {
+  const headerFileName = getHeaderFileName(mdFileName, languageExtension);
+  log(
+    `looking for a [${headerFileName}] [${languageExtension}] line count to compute a markdown example line offset`
+  );
+  const lineCount = (await loadSafeInputFileLines(headerFileName)).length;
+
+  log(
+    `header file [${headerFileName}] [${languageExtension}] line count: [${lineCount}]`
+  );
+  return lineCount;
+};
+
+/**
+ *
+ * @param {string} mdFileName
+ * @param {DoCheckOptions} options
  * @returns
  */
 const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
@@ -128,18 +149,22 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
   //
   let exampleHeaderLineCount = 0;
   if (!customDirMode) {
-    const headerFileName = getHeaderFileName(
+    exampleHeaderLineCount = await getHeaderFileLineCount(
       mdFileName,
       options.languageExtension
     );
-    log(
-      `looking for a [${headerFileName}] line count to compute a markdown example line offset`
-    );
-    exampleHeaderLineCount = (await loadSafeInputFileLines(headerFileName))
-      .length;
-    log(`mdExampleHeaderLineOffset: [${exampleHeaderLineCount}]`);
   }
   //
+
+  /**
+   *
+   * @param {number} headerLineCount
+   * @param {number} startIndex
+   * @returns {lineNumberFn} computed line number
+   */
+  const createCalculateLineNumber =
+    (headerLineCount, startIndex) => (lineNum) =>
+      Math.max(lineNum - headerLineCount, 1) + startIndex;
 
   const exampleFiles = await getExtractedFileNames(
     extractedDirName,
@@ -151,8 +176,10 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
       const startIndex = engine.getStartIndexFromExtractedFileName(fileName);
       return doCheck(fileName, {
         filenameSubstitute: mdFileName,
-        exampleStartLineInMd: startIndex + 1,
-        exampleHeaderLineCount,
+        lineNumberFunc: createCalculateLineNumber(
+          exampleHeaderLineCount,
+          startIndex
+        ),
       });
     })
   )

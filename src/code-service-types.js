@@ -3,8 +3,7 @@
  *
  * @typedef {Object} DoCheckOptions
  * @property {string} filenameSubstitute - file name that is displayed in the results
- * @property {number} exampleStartLineInMd - start line of example in the markDown file
- * @property {number} exampleHeaderLineCount - line count of the header added to the beginning of example in the markDown file
+ * @property {lineNumberFn} lineNumberFunc - line number transformation function
  *
  * @see {DoCheckFn}
  */
@@ -27,6 +26,13 @@
  * @param {string} fileName - name of the file to check
  * @param {DoCheckOptions} options - doCheck options
  * @returns {Promise<CodeCheckResult>} - result
+ */
+
+/**
+ * A line number transformation function.
+ * @callback lineNumberFn
+ * @param {number} lineNumber - original line number
+ * @returns {number} - computed line number
  */
 
 /**

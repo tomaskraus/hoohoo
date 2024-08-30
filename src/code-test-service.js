@@ -8,16 +8,16 @@ const Path = require("path");
 
 // --------------------------------------------------
 
+const indentity = (x) => x;
+
+// const compose2 = (a, b) => (x) => a(b(x));
+
 /**
  * @type {DoCheckFn}
  */
 const doCheck = async (
   fileName,
-  {
-    filenameSubstitute = fileName,
-    exampleStartLineInMd = 0,
-    exampleHeaderLineCount = 0,
-  }
+  { filenameSubstitute = fileName, lineNumberFunc = indentity }
 ) => {
   log(`doCheck: checking file [${fileName}]:`);
 
@@ -25,19 +25,25 @@ const doCheck = async (
   try {
     const context = vm.createContext(getContext(fileName));
     vm.runInContext(codeToRun, context, {
-      filename: filenameSubstitute,
-      lineOffset: exampleStartLineInMd - exampleHeaderLineCount - 1,
+      filename: fileName,
+      lineOffset: 0,
     });
     return {
       fileName: filenameSubstitute,
-      lineNumber: exampleStartLineInMd,
+      lineNumber: lineNumberFunc(1),
       pass: true,
     };
   } catch (err) {
     log("vm err: ", err);
+    log("vm err stack: ", err.stack);
+    const lineNumber = getLineNumberFromStackFileNameLine(
+      getFileNameLineFromStack(fileName, err.stack)
+    );
+
+    log(`lineNumber from stack: [${lineNumber}]`);
     return {
       fileName: filenameSubstitute,
-      lineNumber: exampleStartLineInMd,
+      lineNumber: lineNumberFunc(lineNumber),
       pass: false,
       error: err,
     };
@@ -58,14 +64,37 @@ const getContext = (fileName) => ({
   exports,
 });
 
-// --------------------------------------------------
+// -------------------------------------------------
 
 /**
- * @type {CodeTestService}
+ *
+ * @param {string} fileName
+ * @returns {number} lineNumber part if lineNumber part is present in the fileName, or -1 if lineNumber is not found in the fileName string
  */
-const codeTestService = {
-  doCheck,
-  // doAssert,
+const getLineNumberFromStackFileNameLine = (fileName) => {
+  const lineRegex = /:(\d+)(:\d+)?\)?\s*$/;
+  const res = fileName.match(lineRegex);
+  return res ? parseInt(res[1]) : -1;
+  // return 0;
 };
 
-module.exports = codeTestService;
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#escaping
+const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+
+/**
+ *
+ * @param {string} fileName
+ * @param {string[]} stackStr
+ * @returns
+ */
+const getFileNameLineFromStack = (fileName, stackStr) => {
+  const filenameRegex = new RegExp(escapeRegExp(fileName));
+  return stackStr.split("\n").filter((s) => filenameRegex.test(s))[0] || "";
+};
+// ----------------------------
+
+module.exports = {
+  doCheck,
+  getLineNumberFromStackFileName: getLineNumberFromStackFileNameLine,
+  getFileNameLineFromStack,
+};

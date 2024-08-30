@@ -1,6 +1,8 @@
 const {
   getCodeBlockList,
   getStartIndexFromExtractedFileName,
+  getLineNumberFromStackFileName,
+  getFileNameLineFromStack,
   addHeaderContent,
 } = require("../src/engine");
 
