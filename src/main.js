@@ -195,6 +195,7 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
           return 1;
         });
       }
+      printResume(getStats(examplesChecked));
       return 0;
     })
     .finally(() => {
