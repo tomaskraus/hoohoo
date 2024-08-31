@@ -189,7 +189,7 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
       const failedCount = fails.length;
       log(`failedCount: ${failedCount}`);
       if (failedCount > 0) {
-        loadInputFileLines(mdFileName).then((srcLines) => {
+        return loadInputFileLines(mdFileName).then((srcLines) => {
           printFails(fails, mdFileName, srcLines);
           printResume(getStats(examplesChecked));
           return 1;
