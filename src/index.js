@@ -54,6 +54,11 @@ const getBusinessLogicOptions = (options) => ({
 
 // ----------------------
 
+program.addHelpText(
+  "before",
+  "Extracts, checks and tests code blocks of the Markdown file, based on the language syntax selected."
+);
+
 program
   .command("extract")
   .alias("e")
