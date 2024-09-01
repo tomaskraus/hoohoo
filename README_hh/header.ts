@@ -1,0 +1,1 @@
+type TPoint = [Number, Number];
