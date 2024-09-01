@@ -9,9 +9,13 @@ Hoo Hoo |\__/|
  +-------+
 ```
 
-**hoohoo** is a command-line tool for _JavaScript/TypeScript_ examples in your _markdown_ document.  
+**hoohoo** is a command-line tool for code examples in your _markdown_ document.  
+It extracts, checks and tests code blocks of the Markdown file, based on the language syntax selected.
+
 hoohoo can:
 
-- extract examples to the directory
-- run examples in your Markdown document and check them for errors
-- test the output of examples against assertions written in examples' comments
+- extract code examples to the directory
+- run _javascript_ code examples in your Markdown document and check them for errors
+- test _javascript_ the output of code examples against assertions written in examples' comments
+
+Hoohoo can also checks and tests _TypeScript_ code examples (or even others), as long as you are able to compile these examples to javascript. Even then, Hoohoo is able to show the problematic example lines right in the markdown file itself!
