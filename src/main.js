@@ -127,26 +127,28 @@ const createCalculateLineNumber = (headerLineCount, startIndex) => (lineNum) =>
 /**
  *
  * @param {string} mdFileName
- * @param {DoCheckOptions} options
- * @returns
+ * @param {*} options
+ * @returns {[string[], number]} file names to be processed by the command, start line number
  */
-const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
-  log(`check markDown file name: [${mdFileName}]: `);
+const prepareExampleFilesForCommand = async (
+  mdFileName,
+  options = DEFAULT_OPTIONS
+) => {
   const customDirMode = hasJsDir(options);
   if (customDirMode) {
     log(
-      `+++ Custom dir mode is active. \n    Check will not extract examples nor provide line numbers on examples' runtime errors.`
+      `+++ Custom dir mode is active. \n    prepareFilesForCommand will not extract examples nor provide line numbers on examples' runtime errors.`
     );
   }
-  //
+  // extracted files
   const extractedDirName = getExtractedDirName(mdFileName, options.jsDir);
   const langExt = customDirMode
     ? getFileExtensionFromLanguage("js")
     : getFileExtensionFromLanguage(options.languageExtension);
-  logAndPrint(`extracted examples dir: [${extractedDirName}]`);
   logAndPrint(
-    `checking [${options.languageExtension}] examples of [${mdFileName}]`
+    `looking for [${options.languageExtension}] examples of [${mdFileName}]`
   );
+  logAndPrint(`extracted examples dir: [${extractedDirName}]`);
   //
   if (!customDirMode) {
     await extract(mdFileName, options);
@@ -154,7 +156,7 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
   } else {
     log("- Skipping the extraction step.");
   }
-  //
+  // calculate line numbers
   let exampleHeaderLineCount = 0;
   if (!customDirMode) {
     exampleHeaderLineCount = await getHeaderFileLineCount(
@@ -162,12 +164,58 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
       options.languageExtension
     );
   }
+
   //
   const exampleFiles = await getExtractedFileNames(
     extractedDirName,
     mdFileName,
     getFileExtensionFromLanguage(langExt)
   );
+
+  return [exampleFiles, exampleHeaderLineCount];
+};
+
+const processExampleResults = async (results, mdFileName, options) => {
+  print(
+    `[${results.length}] [${options.languageExtension}] example(s) of [${mdFileName}] were processed.`
+  );
+  const fails = results.filter((res) => !res.pass);
+  const failedCount = fails.length;
+  log(`failedCount: ${failedCount}`);
+  if (failedCount > 0) {
+    return loadInputFileLines(mdFileName).then((srcLines) => {
+      printFails(fails, mdFileName, srcLines);
+      printResume(getStats(results));
+      return 1;
+    });
+  }
+  printResume(getStats(results));
+  return 0;
+};
+
+const tearDownExamples = async (mdFileName, options) => {
+  log(`tearDown examples of [${mdFileName}] ...`);
+  if (!options.keepExtracted && !hasJsDir(options)) {
+    deleteExtractedExamples(mdFileName, options.languageExtension).then(() =>
+      log(`... tearDown Examples complete`)
+    );
+  } else {
+    log(`... tearDown: skip examples deletion`);
+  }
+};
+
+/**
+ *
+ * @param {string} mdFileName
+ * @param {DoCheckOptions} options
+ * @returns
+ */
+const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
+  log(`check Markdown file name: [${mdFileName}]: `);
+
+  const [exampleFiles, exampleHeaderLineCount] =
+    await prepareExampleFilesForCommand(mdFileName, options);
+
   return Promise.all(
     exampleFiles.map((fileName) => {
       const startIndex = engine.getStartIndexFromExtractedFileName(fileName);
@@ -180,28 +228,12 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
       });
     })
   )
-    .then((examplesChecked) => {
-      log("check: examples:", examplesChecked);
-      print(
-        `[${examplesChecked.length}] [${options.languageExtension}] example(s) of [${mdFileName}] were checked.`
-      );
-      const fails = examplesChecked.filter((res) => !res.pass);
-      const failedCount = fails.length;
-      log(`failedCount: ${failedCount}`);
-      if (failedCount > 0) {
-        return loadInputFileLines(mdFileName).then((srcLines) => {
-          printFails(fails, mdFileName, srcLines);
-          printResume(getStats(examplesChecked));
-          return 1;
-        });
-      }
-      printResume(getStats(examplesChecked));
-      return 0;
+    .then((resultsOfCheck) => {
+      log("check: results:", resultsOfCheck);
+      return processExampleResults(resultsOfCheck, mdFileName, options);
     })
     .finally(() => {
-      if (!options.keepExtracted && !customDirMode) {
-        deleteExtractedExamples(mdFileName, options.languageExtension);
-      }
+      tearDownExamples(mdFileName, options);
       log("-- check END ----------------");
     });
 };
