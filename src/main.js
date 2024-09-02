@@ -128,7 +128,7 @@ const createCalculateLineNumber = (headerLineCount, startIndex) => (lineNum) =>
  *
  * @param {string} mdFileName
  * @param {*} options
- * @returns {[string[], number]} file names to be processed by the command, start line number
+ * @returns {Promise<[string[], number]>} file names to be processed by the command, start line number
  */
 const prepareExampleFilesForCommand = async (
   mdFileName,
@@ -175,6 +175,13 @@ const prepareExampleFilesForCommand = async (
   return [exampleFiles, exampleHeaderLineCount];
 };
 
+/**
+ *
+ * @param {*} results
+ * @param {string} mdFileName
+ * @param {*} options
+ * @returns {Promise<number>}
+ */
 const processExampleResults = async (results, mdFileName, options) => {
   print(
     `[${results.length}] [${options.languageExtension}] example(s) of [${mdFileName}] were processed.`
