@@ -85,7 +85,9 @@ program
   .command("check")
   .alias("c")
   .argument("[<mdFile>]", "a markdown file with code examples", "README.md")
-  .description("Runs js examples in the markdown file and check for errors")
+  .description(
+    "runs js examples in the markdown file and checks them for errors"
+  )
   .addOption(codeBlocLanguageExtensionOption)
   .addOption(jsDirOption)
   .addOption(keepTempFilesOption)
