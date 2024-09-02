@@ -247,6 +247,37 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
 
 // ---------------------------------------------------------
 
+const test = async (mdFileName, options = DEFAULT_OPTIONS) => {
+  log(`test Markdown file name: [${mdFileName}]: `);
+
+  const [exampleFiles, exampleHeaderLineCount] =
+    await prepareExampleFilesForCommand(mdFileName, options);
+
+  return Promise.all(
+    exampleFiles.map((fileName) => {
+      const startIndex = engine.getStartIndexFromExtractedFileName(fileName);
+      const lineNumberFunc = createCalculateLineNumber(
+        exampleHeaderLineCount,
+        startIndex
+      );
+      return doCheck(fileName, {
+        filenameSubstitute: mdFileName,
+        lineNumberFunc,
+      });
+    })
+  )
+    .then((resultsOfCheck) => {
+      log("test: results:", resultsOfCheck);
+      return processExampleResults(resultsOfCheck, mdFileName, options);
+    })
+    .finally(() => {
+      tearDownExamples(mdFileName, options);
+      log("-- test END ----------------");
+    });
+};
+
+// ---------------------------------------------------------
+
 const getExtractedFileNames = async (
   extractedDirName,
   mdFileName,
@@ -362,4 +393,5 @@ module.exports = {
   APP_NAME,
   extract,
   check,
+  test,
 };

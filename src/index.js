@@ -5,7 +5,7 @@
 // const Path = require("path");
 const { Command, createOption } = require("commander");
 
-const { APP_NAME, extract, check } = require("./main");
+const { APP_NAME, extract, check, test } = require("./main");
 
 // ------------------------------------------
 
@@ -105,6 +105,29 @@ program
     );
   });
 
+// ----------------------
+
+program
+  .command("test")
+  .alias("t")
+  .argument("[<mdFile>]", "a markdown file with code examples", "README.md")
+  .description("test assertions in examples of the markdown file")
+  .addOption(codeBlocLanguageExtensionOption)
+  .addOption(jsDirOption)
+  .addOption(keepTempFilesOption)
+  .addHelpText(
+    "after",
+    `example: 
+  ${APP_NAME} t
+  ${APP_NAME} test views/detail.md
+  ${APP_NAME} test --jsDir views/detail_hh
+  `
+  )
+  .action(async (mdFile, options) => {
+    process.exitCode = await safeRunner(() =>
+      test(mdFile, getBusinessLogicOptions(options))
+    );
+  });
 // ----------------------
 
 program.parse();
