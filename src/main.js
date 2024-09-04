@@ -13,10 +13,11 @@ const engine = require("./engine.js");
 require("./code-service-types.js");
 const { doCheck } = require("./code-test-service.js");
 
+const { doTests } = require("clogtest/src/engine.js")();
+const { print, printFails, printResume } = require("clogtest/src/report.js");
+
 const { appLog } = require("./logger.js");
 const log = appLog.extend("main");
-
-const { print, printFails, printResume } = require("./report.js");
 
 // -------------------------------------------
 
@@ -191,7 +192,7 @@ const processExampleResults = async (results, mdFileName, options) => {
   log(`failedCount: ${failedCount}`);
   if (failedCount > 0) {
     return loadInputFileLines(mdFileName).then((srcLines) => {
-      printFails(fails, mdFileName, srcLines);
+      printFails(fails, srcLines);
       printResume(getStats(results));
       return 1;
     });
@@ -255,20 +256,21 @@ const test = async (mdFileName, options = DEFAULT_OPTIONS) => {
 
   return Promise.all(
     exampleFiles.map((fileName) => {
-      const startIndex = engine.getStartIndexFromExtractedFileName(fileName);
-      const lineNumberFunc = createCalculateLineNumber(
-        exampleHeaderLineCount,
-        startIndex
-      );
-      return doCheck(fileName, {
-        filenameSubstitute: mdFileName,
-        lineNumberFunc,
-      });
+      // const startIndex = engine.getStartIndexFromExtractedFileName(fileName);
+      // const lineNumberFunc = createCalculateLineNumber(
+      //   exampleHeaderLineCount,
+      //   startIndex
+      // );
+      return doTests(fileName);
     })
   )
-    .then((resultsOfCheck) => {
-      log("test: results:", resultsOfCheck);
-      return processExampleResults(resultsOfCheck, mdFileName, options);
+    .then((testResultPairs) => {
+      const testResults = testResultPairs
+        .map(([res, _]) => res[0])
+        .filter((r) => r !== undefined)
+        .reduce((acc, r) => [...acc, r], []);
+      log("test: results:", testResults);
+      return processExampleResults(testResults, mdFileName, options);
     })
     .finally(() => {
       tearDownExamples(mdFileName, options);
