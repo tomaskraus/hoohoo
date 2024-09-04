@@ -37,7 +37,10 @@ Code block that needs a js header file to require a local file:
   // try this:
   const sum = add(1)(2);
   console.log(sum);
-  //=> 3
+  //=> 4
+
+  console.log('hello');
+  //=> he
 ```
 
 This js code block will be skipped:
