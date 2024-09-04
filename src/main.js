@@ -11,9 +11,8 @@ const Path = require("path");
 
 const engine = require("./engine.js");
 require("./code-service-types.js");
-const { doCheck } = require("./code-test-service.js");
+const { doCheck, doTests } = require("./code-test-service.js");
 
-const { doTests } = require("clogtest/src/engine.js")();
 const { print, printFails, printResume } = require("clogtest/src/report.js");
 
 const { appLog } = require("./logger.js");

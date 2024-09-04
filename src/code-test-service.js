@@ -6,6 +6,8 @@ const vm = require("node:vm");
 const fs = require("fs/promises");
 const Path = require("path");
 
+const { doTests } = require("clogtest/src/engine.js")();
+
 // --------------------------------------------------
 
 /**
@@ -90,6 +92,7 @@ const getFileNameLineFromStack = (fileName, stackStr) => {
 
 module.exports = {
   doCheck,
+  doTests,
   getLineNumberFromStackFileName: getLineNumberFromStackFileNameLine,
   getFileNameLineFromStack,
 };
