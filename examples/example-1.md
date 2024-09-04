@@ -59,7 +59,7 @@ const pa: TPoint = [1, 2];
 const swap = (pt: TPoint): TPoint => [pt[1], pt[0]]
 
 console.log(swap([10, 5]));
-//=> [5, 10]
+//=> [ 5, 10 ]
 
 console.log(square(10));
 ```
