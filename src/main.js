@@ -118,12 +118,25 @@ const getHeaderFileLineCount = async (mdFileName, languageExtension) => {
 
 /**
  *
+ * @param {string} mdFileName
+ * @param {string} srcFileName
  * @param {number} headerLineCount
- * @param {number} startIndex
- * @returns {lineNumberFn} computed line number
+ * @returns {(CodeCheckResult) => CodeCheckResult} computed line number
  */
-const createCalculateLineNumber = (headerLineCount, startIndex) => (lineNum) =>
-  Math.max(lineNum - headerLineCount, 1) + startIndex;
+const createResultFileLineCorrectionFn = (
+  mdFileName,
+  srcFileName,
+  headerLineCount
+) => {
+  const lineOffset = engine.getStartIndexFromExtractedFileName(srcFileName);
+  return ({ fileName, lineNumber, ...res }) => {
+    return {
+      fileName: mdFileName,
+      lineNumber: Math.max(lineNumber - headerLineCount, 1) + lineOffset,
+      ...res,
+    };
+  };
+};
 
 /**
  *
@@ -226,14 +239,12 @@ const check = async (mdFileName, options = DEFAULT_OPTIONS) => {
 
   return Promise.all(
     exampleFiles.map((fileName) => {
-      const startIndex = engine.getStartIndexFromExtractedFileName(fileName);
-      return doCheck(fileName, {
-        filenameSubstitute: mdFileName,
-        lineNumberFunc: createCalculateLineNumber(
-          exampleHeaderLineCount,
-          startIndex
-        ),
-      });
+      const resultFileLineCorrectionFn = createResultFileLineCorrectionFn(
+        mdFileName,
+        fileName,
+        exampleHeaderLineCount
+      );
+      return doCheck(fileName).then(resultFileLineCorrectionFn);
     })
   )
     .then((resultsOfCheck) => {
@@ -256,12 +267,14 @@ const test = async (mdFileName, options = DEFAULT_OPTIONS) => {
 
   return Promise.all(
     exampleFiles.map((fileName) => {
-      // const startIndex = engine.getStartIndexFromExtractedFileName(fileName);
-      // const lineNumberFunc = createCalculateLineNumber(
-      //   exampleHeaderLineCount,
-      //   startIndex
-      // );
-      return doTests(fileName);
+      const resultFileLineCorrectionFn = createResultFileLineCorrectionFn(
+        mdFileName,
+        fileName,
+        exampleHeaderLineCount
+      );
+      return doTests(fileName).then((results) =>
+        results.map(resultFileLineCorrectionFn)
+      );
     })
   )
     .then((testResultArrs) => {

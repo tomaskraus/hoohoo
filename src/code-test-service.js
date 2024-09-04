@@ -8,42 +8,37 @@ const Path = require("path");
 
 // --------------------------------------------------
 
-const indentity = (x) => x;
-
-// const compose2 = (a, b) => (x) => a(b(x));
-
 /**
- * @type {DoCheckFn}
+ *
+ * @param {string} jsFileName
+ * @returns {Promise<CodeCheckResult>}
  */
-const doCheck = async (
-  fileName,
-  { filenameSubstitute = fileName, lineNumberFunc = indentity }
-) => {
-  log(`doCheck: checking file [${fileName}]:`);
+const doCheck = async (jsFileName) => {
+  log(`doCheck: checking file [${jsFileName}]:`);
 
-  const codeToRun = await fs.readFile(fileName, { encoding: "utf-8" });
+  const codeToRun = await fs.readFile(jsFileName, { encoding: "utf-8" });
   try {
-    const context = vm.createContext(getContext(fileName));
+    const context = vm.createContext(getContext(jsFileName));
     vm.runInContext(codeToRun, context, {
-      filename: fileName,
+      filename: jsFileName,
       lineOffset: 0,
     });
     return {
-      fileName: filenameSubstitute,
-      lineNumber: lineNumberFunc(1),
+      fileName: jsFileName,
+      lineNumber: 1,
       pass: true,
     };
   } catch (err) {
     log("vm err: ", err);
     log("vm err stack: ", err.stack);
     const lineNumber = getLineNumberFromStackFileNameLine(
-      getFileNameLineFromStack(fileName, err.stack)
+      getFileNameLineFromStack(jsFileName, err.stack)
     );
 
     log(`lineNumber from stack: [${lineNumber}]`);
     return {
-      fileName: filenameSubstitute,
-      lineNumber: lineNumberFunc(lineNumber),
+      fileName: jsFileName,
+      lineNumber,
       pass: false,
       error: err,
     };
