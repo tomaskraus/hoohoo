@@ -264,13 +264,13 @@ const test = async (mdFileName, options = DEFAULT_OPTIONS) => {
       return doTests(fileName);
     })
   )
-    .then((testResultPairs) => {
-      const testResults = testResultPairs
-        .map(([res, _]) => res[0])
-        .filter((r) => r !== undefined)
-        .reduce((acc, r) => [...acc, r], []);
-      log("test: results:", testResults);
-      return processExampleResults(testResults, mdFileName, options);
+    .then((testResultArrs) => {
+      const results = testResultArrs
+        // .map((res) => res[0])
+        // .filter((r) => r !== undefined)
+        .reduce((acc, rArr) => [...acc, ...rArr], []);
+      log("test: results:", testResultArrs);
+      return processExampleResults(results, mdFileName, options);
     })
     .finally(() => {
       tearDownExamples(mdFileName, options);
