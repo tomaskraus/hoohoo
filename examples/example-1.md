@@ -81,5 +81,6 @@ Another example:
 const deb = require("debug")
 const engine = require("../../src/engine.js")
 console.log("hu!";
+//=> ... missing ...
 const log = deb("abc")
 ```
